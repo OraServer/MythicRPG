@@ -1,0 +1,47 @@
+package com.woxloi.mythicrpg.level;
+
+import com.woxloi.mythicrpg.MythicRPG;
+import com.woxloi.mythicrpg.job.JobManager;
+import com.woxloi.mythicrpg.player.PlayerData;
+import com.woxloi.mythicrpg.skill.SkillManager;
+import com.woxloi.mythicrpg.skill.SkillRegistry;
+import org.bukkit.Sound;
+import org.bukkit.entity.Player;
+
+public class LevelManager {
+
+    public static double getRequiredExp(int level) {
+        double base = MythicRPG.getInstance().getConfig().getDouble("level.base-exp");
+        double rate = MythicRPG.getInstance().getConfig().getDouble("level.exp-rate");
+        return base * Math.pow(level, rate);
+    }
+
+    public static void addExp(Player player, double amount) {
+        PlayerData data = com.woxloi.mythicrpg.player.PlayerDataManager.get(player);
+        if (data == null) return;
+
+        data.addExp(amount);
+
+        while (data.getExp() >= getRequiredExp(data.getLevel())) {
+            data.setExp(data.getExp() - getRequiredExp(data.getLevel()));
+            levelUp(player, data);
+        }
+    }
+
+    private static void levelUp(Player player, PlayerData data) {
+        data.setLevel(data.getLevel() + 1);
+
+        JobManager.onLevelUp(player);
+        SkillManager.onLevelUp(player);
+
+        // LvUP演出
+        player.sendTitle(
+                "§6LEVEL UP!",
+                "§eLv " + data.getLevel(),
+                10, 40, 10
+        );
+
+        player.playSound(player.getLocation(),
+                Sound.ENTITY_PLAYER_LEVELUP, 1f, 1f);
+    }
+}
