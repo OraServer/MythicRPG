@@ -15,7 +15,6 @@ public class ResourceRegenTask extends BukkitRunnable {
         Bukkit.getOnlinePlayers().forEach(player -> {
             PlayerData data = PlayerDataManager.get(player);
             if (data == null) return;
-
             data.addMp(1);
             data.addSp(2);
         });
@@ -23,18 +22,12 @@ public class ResourceRegenTask extends BukkitRunnable {
 
     public static void start() {
         if (task != null) return;
-
         task = new ResourceRegenTask();
-        task.runTaskTimer(
-                MythicRPG.getInstance(),
-                20L,
-                20L
-        );
+        task.runTaskTimer(MythicRPG.getInstance(), 20L, 20L);
     }
 
     public static void stop() {
         if (task == null) return;
-
         task.cancel();
         task = null;
     }

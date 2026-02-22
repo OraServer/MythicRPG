@@ -1,0 +1,28 @@
+# =====================
+# 弓使いスキル定義
+# =====================
+skills:
+
+  basic_attack:
+    name: "基本攻撃"
+    unlock-level: 1
+    cooldown: 0
+    trigger: LEFT_CLICK
+    resource: NONE
+    cost: 0
+    weapon: ANY
+    effect: basic_attack
+    damage-multiplier: 1.0
+    range: 3.0
+
+  piercing_arrow:
+    name: "貫通矢"
+    unlock-level: 5
+    cooldown: 8
+    trigger: RIGHT_CLICK
+    resource: SP
+    cost: 30
+    weapon: BOW
+    effect: area_damage
+    damage: 8.0
+    radius: 1.5

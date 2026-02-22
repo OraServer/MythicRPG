@@ -11,37 +11,20 @@ import org.bukkit.entity.Player;
 public class PowerSlashSkill extends Skill {
 
     public PowerSlashSkill() {
-        super(
-                "power_slash",
-                "パワースラッシュ",
-                5,                      // クールダウン（秒）
-                5L,                     // 解放Lv
-                SkillTrigger.RIGHT_CLICK,
-                ResourceType.MP,
-                20.0                    // MP消費
-        );
+        super("power_slash", "パワースラッシュ", 5, 5L,
+                SkillTrigger.RIGHT_CLICK, ResourceType.MP, 20.0);
     }
 
     @Override
     public void execute(Player player) {
         player.getWorld().spawnParticle(
-                Particle.SWEEP_ATTACK,
-                player.getLocation(),
-                12,
-                0.5, 0.2, 0.5,
-                0
-        );
+                Particle.SWEEP_ATTACK, player.getLocation(), 12, 0.5, 0.2, 0.5, 0);
 
-        player.playSound(
-                player.getLocation(),
-                Sound.ENTITY_PLAYER_ATTACK_SWEEP,
-                1f,
-                1f
-        );
+        player.playSound(player.getLocation(),
+                Sound.ENTITY_PLAYER_ATTACK_SWEEP, 1f, 1f);
 
         player.getNearbyEntities(3, 3, 3).stream()
-                .filter(e -> e instanceof LivingEntity)
-                .filter(e -> e != player)
+                .filter(e -> e instanceof LivingEntity && e != player)
                 .map(e -> (LivingEntity) e)
                 .forEach(e -> e.damage(6.0, player));
     }

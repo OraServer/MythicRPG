@@ -1,15 +1,23 @@
 name: MythicRPG
-version: 0.1.0
+version: ${version}
 main: com.woxloi.mythicrpg.MythicRPG
 api-version: 1.20
 author: woxloi
 description: Large-scale RPG plugin for Minecraft
 
+depend:
+  - MythicMobs
+
 commands:
   mrpg:
     description: MythicRPG main command
-    permission: mythicrpg.admin
+    usage: /mrpg [skill|skills|job|stats]
+    permission: mythicrpg.use
 
 permissions:
+  mythicrpg.use:
+    description: MythicRPGの基本コマンドを使用できる
+    default: true
   mythicrpg.admin:
+    description: MythicRPGの管理者コマンドを使用できる
     default: op

@@ -1,5 +1,6 @@
 package com.woxloi.mythicrpg.skill;
 
+import com.woxloi.mythicrpg.MythicRPG;
 import com.woxloi.mythicrpg.player.PlayerData;
 import com.woxloi.mythicrpg.player.PlayerDataManager;
 import org.bukkit.Sound;
@@ -13,18 +14,18 @@ public class SkillManager {
 
         Skill skill = SkillRegistry.getSkill(data.getJob(), skillId);
         if (skill == null) {
-            player.sendMessage("§cそのスキルは使えません");
+            MythicRPG.msg(player, "§cそのスキルは使えません");
             return;
         }
 
         if (data.getLevel() < skill.getUnlockLevel()) {
-            player.sendMessage("§cLv不足で未解放です");
+            MythicRPG.msg(player, "§cLv§e" + skill.getUnlockLevel() + "§c以上で解放されます");
             return;
         }
 
         if (SkillCooldownManager.isOnCooldown(player.getUniqueId(), skillId)) {
             long sec = SkillCooldownManager.getRemaining(player.getUniqueId(), skillId);
-            player.sendMessage("§cクールタイム中 (" + sec + "秒)");
+            MythicRPG.msg(player, "§cクールタイム中: §e" + sec + "秒");
             return;
         }
 
@@ -35,18 +36,15 @@ public class SkillManager {
         };
 
         if (!canUse) {
-            player.sendMessage("§cリソースが足りません");
+            String res = skill.getResourceType().name();
+            MythicRPG.msg(player, "§c" + res + "が不足しています");
             return;
         }
 
         skill.execute(player);
-        SkillCooldownManager.setCooldown(
-                player.getUniqueId(),
-                skillId,
-                skill.getCooldown()
-        );
+        SkillCooldownManager.setCooldown(player.getUniqueId(), skillId, skill.getCooldown());
 
-        player.sendMessage("§aスキル発動: §e" + skill.getName());
+        MythicRPG.msg(player, "§aスキル発動: §e" + skill.getName());
     }
 
     public static void onLevelUp(Player player) {
@@ -54,14 +52,10 @@ public class SkillManager {
         if (data == null || !data.hasJob()) return;
 
         SkillRegistry.getSkills(data.getJob()).forEach(skill -> {
-            if (!data.hasSkill(skill.getId())
-                    && data.getLevel() >= skill.getUnlockLevel()) {
-
+            if (!data.hasSkill(skill.getId()) && data.getLevel() >= skill.getUnlockLevel()) {
                 data.unlockSkill(skill.getId());
-
-                player.sendMessage("§aスキル解放: §e" + skill.getName());
-                player.playSound(player.getLocation(),
-                        Sound.UI_TOAST_CHALLENGE_COMPLETE, 1f, 1f);
+                MythicRPG.msg(player, "§aスキル解放: §e" + skill.getName());
+                player.playSound(player.getLocation(), Sound.UI_TOAST_CHALLENGE_COMPLETE, 1f, 1f);
             }
         });
     }

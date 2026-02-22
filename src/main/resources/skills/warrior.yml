@@ -1,0 +1,33 @@
+# =====================
+# 戦士スキル定義
+# =====================
+# trigger: RIGHT_CLICK / LEFT_CLICK / SHIFT_RIGHT_CLICK
+# resource: MP / SP / NONE
+# weapon: SWORD / BOW / BLAZE_ROD / ANY
+# effect: スキルの効果タイプ (basic_attack / area_damage / projectile)
+
+skills:
+
+  basic_attack:
+    name: "基本攻撃"
+    unlock-level: 1
+    cooldown: 0
+    trigger: LEFT_CLICK
+    resource: NONE
+    cost: 0
+    weapon: ANY
+    effect: basic_attack
+    damage-multiplier: 1.0   # attack × この倍率
+    range: 3.0
+
+  power_slash:
+    name: "パワースラッシュ"
+    unlock-level: 5
+    cooldown: 5
+    trigger: RIGHT_CLICK
+    resource: MP
+    cost: 20
+    weapon: SWORD
+    effect: area_damage
+    damage: 6.0
+    radius: 3.0

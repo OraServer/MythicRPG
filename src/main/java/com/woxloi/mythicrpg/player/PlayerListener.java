@@ -1,6 +1,8 @@
 package com.woxloi.mythicrpg.player;
 
+import com.woxloi.mythicrpg.MythicRPG;
 import com.woxloi.mythicrpg.job.JobSelectGUI;
+import com.woxloi.mythicrpg.ui.ScoreboardManager;
 import org.bukkit.Bukkit;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
@@ -12,21 +14,23 @@ public class PlayerListener implements Listener {
     @EventHandler
     public void onJoin(PlayerJoinEvent event) {
         PlayerDataManager.load(event.getPlayer());
+        ScoreboardManager.init(event.getPlayer());
 
-        // 1tick遅らせてGUI表示
         Bukkit.getScheduler().runTaskLater(
-                com.woxloi.mythicrpg.MythicRPG.getInstance(),
+                MythicRPG.getInstance(),
                 () -> {
-                    if (!PlayerDataManager.get(event.getPlayer()).hasJob()) {
+                    PlayerData data = PlayerDataManager.get(event.getPlayer());
+                    if (data != null && !data.hasJob()) {
                         JobSelectGUI.open(event.getPlayer());
                     }
                 },
-                1L
+                2L
         );
     }
 
     @EventHandler
     public void onQuit(PlayerQuitEvent event) {
         PlayerDataManager.save(event.getPlayer());
+        ScoreboardManager.remove(event.getPlayer());
     }
 }

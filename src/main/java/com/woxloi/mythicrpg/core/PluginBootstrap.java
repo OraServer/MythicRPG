@@ -1,10 +1,44 @@
 package com.woxloi.mythicrpg.core;
 
 import com.woxloi.mythicrpg.MythicRPG;
+import com.woxloi.mythicrpg.artifact.ArtifactListener;
+import com.woxloi.mythicrpg.artifact.ArtifactManager;
+import com.woxloi.mythicrpg.artifact.ArtifactRepository;
+import com.woxloi.mythicrpg.buff.BuffListener;
+import com.woxloi.mythicrpg.buff.BuffPotionListener;
+import com.woxloi.mythicrpg.buff.BuffTickTask;
 import com.woxloi.mythicrpg.combat.MobKillListener;
+import com.woxloi.mythicrpg.combo.ComboDisplayTask;
+import com.woxloi.mythicrpg.combo.ComboListener;
+import com.woxloi.mythicrpg.command.MrpgCommand;
+import com.woxloi.mythicrpg.db.DatabaseManager;
+import com.woxloi.mythicrpg.db.TableInitializer;
+import com.woxloi.mythicrpg.equipment.enchant.EnchantGUIListener;
+import com.woxloi.mythicrpg.dungeon.DungeonGUI;
+import com.woxloi.mythicrpg.dungeon.DungeonListener;
+import com.woxloi.mythicrpg.element.ElementalDamageListener;
+import com.woxloi.mythicrpg.element.ElementResistanceGUI;
+import com.woxloi.mythicrpg.pet.PetListener;
+import com.woxloi.mythicrpg.pvp.PvpListener;
+import com.woxloi.mythicrpg.pvp.PvpRankingManager;
+import com.woxloi.mythicrpg.ui.stats.StatDetailGUI;
+import com.woxloi.mythicrpg.ui.title.TitleDetailGUI;
+import com.woxloi.mythicrpg.equipment.drop.DropTableRegistry;
+import com.woxloi.mythicrpg.equipment.drop.EquipDropListener;
+import com.woxloi.mythicrpg.equipment.forge.ForgeGUIListener;
+import com.woxloi.mythicrpg.equipment.identify.IdentifyListener;
+import com.woxloi.mythicrpg.equipment.refine.RefineGUIListener;
+import com.woxloi.mythicrpg.equipment.socket.SocketGUIListener;
+import com.woxloi.mythicrpg.equipment.transfer.TransferGUIListener;
 import com.woxloi.mythicrpg.job.JobListener;
+import com.woxloi.mythicrpg.party.PartyListener;
+import com.woxloi.mythicrpg.player.PlayerDataManager;
 import com.woxloi.mythicrpg.player.PlayerListener;
+import com.woxloi.mythicrpg.quest.QuestCompleteListener;
+import com.woxloi.mythicrpg.quest.QuestPluginBridge;
 import com.woxloi.mythicrpg.skill.WeaponSkillListener;
+import com.woxloi.mythicrpg.skill.loader.SkillLoader;
+import com.woxloi.mythicrpg.title.TitleListener;
 import com.woxloi.mythicrpg.ui.ActionBarTask;
 import com.woxloi.mythicrpg.ui.ResourceRegenTask;
 import com.woxloi.mythicrpg.ui.ScoreboardTask;
@@ -25,10 +59,27 @@ public class PluginBootstrap {
     public void enable() {
         plugin.saveDefaultConfig();
 
+        // 1. DB接続 & テーブル初期化
+        initDatabase();
+
+        // 2. スキルYAMLロード
+        SkillLoader.load();
+
+        // 3. アーティファクト初期化
+        ArtifactManager.init();
+
+        // 4. ドロップテーブル初期化
+        DropTableRegistry.load();
+
+        // 5. QuestPlugin連携チェック
+        QuestPluginBridge.init();
+
+        // 5. コマンド・リスナー・タスク
+        registerCommands();
         registerListeners();
         startTasks();
 
-        MythicLogger.info("MythicRPG Enabled");
+        MythicLogger.info("Enabled v" + plugin.getDescription().getVersion());
     }
 
     /* =====================
@@ -37,11 +88,42 @@ public class PluginBootstrap {
     public void disable() {
         stopTasks();
 
-        MythicLogger.info("MythicRPG Disabled");
+        // オンラインプレイヤーのデータを同期保存
+        MythicLogger.info("全プレイヤーデータを保存中...");
+        PlayerDataManager.saveAll();
+
+        // DB接続を閉じる
+        DatabaseManager.shutdown();
+
+        MythicLogger.info("Disabled");
     }
 
     /* =====================
-       Listener
+       DB
+     ===================== */
+    private void initDatabase() {
+        try {
+            DatabaseManager.init();
+            TableInitializer.createTables();
+        } catch (Exception e) {
+            MythicLogger.error("DB初期化失敗: " + e.getMessage());
+            MythicLogger.error("config.yml の database 設定を確認してください");
+            Bukkit.getPluginManager().disablePlugin(plugin);
+        }
+    }
+
+    /* =====================
+       Commands
+     ===================== */
+    private void registerCommands() {
+        MrpgCommand cmd = new MrpgCommand();
+        plugin.getCommand("mrpg").setExecutor(cmd);
+        plugin.getCommand("mrpg").setTabCompleter(cmd);
+        MythicLogger.debug("Commands registered");
+    }
+
+    /* =====================
+       Listeners
      ===================== */
     private void registerListeners() {
         Bukkit.getPluginManager().registerEvents(new PlayerListener(), plugin);
@@ -50,17 +132,68 @@ public class PluginBootstrap {
         Bukkit.getPluginManager().registerEvents(new WeaponSkillListener(), plugin);
         Bukkit.getPluginManager().registerEvents(new MobKillListener(), plugin);
 
+        // アーティファクト
+        Bukkit.getPluginManager().registerEvents(new ArtifactListener(), plugin);
+
+        // バフ/デバフ
+        Bukkit.getPluginManager().registerEvents(new BuffListener(), plugin);
+        Bukkit.getPluginManager().registerEvents(new BuffPotionListener(), plugin);
+
+        // 称号
+        Bukkit.getPluginManager().registerEvents(new TitleListener(), plugin);
+
+        // コンボ
+        Bukkit.getPluginManager().registerEvents(new ComboListener(), plugin);
+
+        // パーティー
+        Bukkit.getPluginManager().registerEvents(new PartyListener(), plugin);
+
+        // 装備拡張システム
+        Bukkit.getPluginManager().registerEvents(new EquipDropListener(), plugin);
+        Bukkit.getPluginManager().registerEvents(new IdentifyListener(), plugin);
+        Bukkit.getPluginManager().registerEvents(new SocketGUIListener(), plugin);
+        Bukkit.getPluginManager().registerEvents(new RefineGUIListener(), plugin);
+        Bukkit.getPluginManager().registerEvents(new TransferGUIListener(), plugin);
+        Bukkit.getPluginManager().registerEvents(new ForgeGUIListener(), plugin);
+        Bukkit.getPluginManager().registerEvents(new EnchantGUIListener(), plugin);
+
+        // 属性システム
+        Bukkit.getPluginManager().registerEvents(new ElementalDamageListener(), plugin);
+        Bukkit.getPluginManager().registerEvents(new ElementResistanceGUI(), plugin);
+
+        // ダンジョン
+        Bukkit.getPluginManager().registerEvents(new DungeonListener(), plugin);
+        Bukkit.getPluginManager().registerEvents(new DungeonGUI(), plugin);
+
+        // ペット
+        Bukkit.getPluginManager().registerEvents(new PetListener(), plugin);
+
+        // PvP
+        Bukkit.getPluginManager().registerEvents(new PvpListener(), plugin);
+        Bukkit.getPluginManager().registerEvents(new PvpRankingManager(), plugin);
+
+        // UI補完
+        Bukkit.getPluginManager().registerEvents(new StatDetailGUI(), plugin);
+        Bukkit.getPluginManager().registerEvents(new TitleDetailGUI(), plugin);
+
+        // QuestPlugin連携 (QuestPluginが存在する場合のみ有効)
+        if (QuestPluginBridge.isAvailable()) {
+            Bukkit.getPluginManager().registerEvents(new QuestCompleteListener(), plugin);
+            MythicLogger.info("QuestPlugin連携リスナーを登録しました");
+        }
+
         MythicLogger.debug("Listeners registered");
     }
 
     /* =====================
-       Task
+       Tasks
      ===================== */
     private void startTasks() {
         ScoreboardTask.start();
         ActionBarTask.start();
         ResourceRegenTask.start();
-
+        BuffTickTask.start();
+        ComboDisplayTask.start();
         MythicLogger.debug("Tasks started");
     }
 
@@ -68,7 +201,8 @@ public class PluginBootstrap {
         ScoreboardTask.stop();
         ActionBarTask.stop();
         ResourceRegenTask.stop();
-
+        BuffTickTask.stop();
+        ComboDisplayTask.stop();
         MythicLogger.debug("Tasks stopped");
     }
 }

@@ -1,0 +1,26 @@
+# =====================
+# 魔法使いスキル定義
+# =====================
+skills:
+
+  basic_attack:
+    name: "基本攻撃"
+    unlock-level: 1
+    cooldown: 0
+    trigger: LEFT_CLICK
+    resource: NONE
+    cost: 0
+    weapon: ANY
+    effect: basic_attack
+    damage-multiplier: 1.0
+    range: 3.0
+
+  fireball:
+    name: "ファイアボール"
+    unlock-level: 5
+    cooldown: 6
+    trigger: RIGHT_CLICK
+    resource: MP
+    cost: 20
+    weapon: BLAZE_ROD
+    effect: projectile

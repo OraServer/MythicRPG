@@ -15,18 +15,12 @@ public class ScoreboardTask extends BukkitRunnable {
 
     public static void start() {
         if (task != null) return;
-
         task = new ScoreboardTask();
-        task.runTaskTimer(
-                MythicRPG.getInstance(),
-                20L,
-                40L
-        );
+        task.runTaskTimer(MythicRPG.getInstance(), 20L, 40L);
     }
 
     public static void stop() {
         if (task == null) return;
-
         task.cancel();
         task = null;
     }

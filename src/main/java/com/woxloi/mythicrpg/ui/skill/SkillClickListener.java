@@ -19,19 +19,18 @@ public class SkillClickListener implements Listener {
         if (!e.getView().getTitle().equals(SkillGUI.TITLE)) return;
 
         e.setCancelled(true);
-
         ItemStack item = e.getCurrentItem();
         if (item == null || !item.hasItemMeta()) return;
 
         PlayerData data = PlayerDataManager.get(player);
         if (data == null || !data.hasJob()) return;
 
-        String name = item.getItemMeta().getDisplayName()
-                .replace("§a", "")
-                .replace("§c", "");
+        // §a or §c プレフィックスを除去してスキル名を取得
+        String rawName = item.getItemMeta().getDisplayName()
+                .replaceAll("§[0-9a-fk-or]", "");
 
         for (Skill skill : SkillRegistry.getSkills(data.getJob())) {
-            if (skill.getName().equals(name)) {
+            if (skill.getName().equals(rawName)) {
                 SkillManager.useSkill(player, skill.getId());
                 player.closeInventory();
                 return;

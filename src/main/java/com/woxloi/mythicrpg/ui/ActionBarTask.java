@@ -14,26 +14,18 @@ public class ActionBarTask extends BukkitRunnable {
     public void run() {
         Bukkit.getOnlinePlayers().forEach(player -> {
             PlayerData data = PlayerDataManager.get(player);
-            if (data == null) return;
-
-            ActionBarManager.update(player, data);
+            if (data != null) ActionBarManager.update(player, data);
         });
     }
 
     public static void start() {
         if (task != null) return;
-
         task = new ActionBarTask();
-        task.runTaskTimer(
-                MythicRPG.getInstance(),
-                0L,
-                10L
-        );
+        task.runTaskTimer(MythicRPG.getInstance(), 0L, 10L);
     }
 
     public static void stop() {
         if (task == null) return;
-
         task.cancel();
         task = null;
     }

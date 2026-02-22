@@ -21,8 +21,7 @@ public class SkillCooldownManager {
     }
 
     public static void setCooldown(UUID uuid, String skillId, long seconds) {
-        cooldowns
-                .computeIfAbsent(uuid, k -> new HashMap<>())
+        cooldowns.computeIfAbsent(uuid, k -> new HashMap<>())
                 .put(skillId, System.currentTimeMillis() + seconds * 1000);
     }
 }

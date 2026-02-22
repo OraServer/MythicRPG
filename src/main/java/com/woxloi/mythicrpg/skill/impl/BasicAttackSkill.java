@@ -12,15 +12,8 @@ import org.bukkit.util.Vector;
 public class BasicAttackSkill extends Skill {
 
     public BasicAttackSkill() {
-        super(
-                "basic_attack",
-                "基本攻撃",
-                0,                      // クールダウンなし
-                1L,                     // Lv1
-                SkillTrigger.LEFT_CLICK,
-                ResourceType.NONE,
-                0.0
-        );
+        super("basic_attack", "基本攻撃", 1, 0L,
+                SkillTrigger.LEFT_CLICK, ResourceType.NONE, 0.0);
     }
 
     @Override
@@ -31,14 +24,12 @@ public class BasicAttackSkill extends Skill {
         LivingEntity target = getTarget(player, 3.0);
         if (target == null) return;
 
-        double damage = data.getAttack();
-        target.damage(damage, player);
+        target.damage(data.getAttack(), player);
 
-        Vector knockback = target.getLocation().toVector()
+        Vector kb = target.getLocation().toVector()
                 .subtract(player.getLocation().toVector())
                 .normalize().multiply(0.3);
-
-        target.setVelocity(knockback);
+        target.setVelocity(kb);
     }
 
     private LivingEntity getTarget(Player player, double range) {

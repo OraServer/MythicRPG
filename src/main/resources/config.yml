@@ -1,48 +1,61 @@
 debug: true
 
+# =====================
+# MySQL設定
+# =====================
+database:
+  host: localhost
+  port: 3306
+  name: mythicrpg
+  user: root
+  password: password
+  pool-size: 10
+  connection-timeout: 30000
+
+# =====================
+# レベル設定
+# =====================
 level:
   max-level: 100
   base-exp: 100
   exp-rate: 1.25
 
+# =====================
+# MythicMobs EXP倍率
+# =====================
+mythicmobs:
+  exp-multiplier: 1.0
+
+# =====================
+# ジョブステータス
+# =====================
 jobs:
 
   warrior:
-    # --- 基礎ステータス ---
     base-hp: 20
     base-atk: 5
     base-mp: 0
     base-sp: 100
-
-    # --- レベル成長 ---
     grow-hp: 4.0
     grow-atk: 1.5
     grow-mp: 0.0
     grow-sp: 5.0
 
-
   mage:
-    # --- 基礎ステータス ---
     base-hp: 16
     base-atk: 8
     base-mp: 120
     base-sp: 0
-
-    # --- レベル成長 ---
     grow-hp: 2.5
     grow-atk: 2.5
     grow-mp: 12.0
     grow-sp: 0.0
 
-
   archer:
-    # --- 基礎ステータス ---
     base-hp: 18
     base-atk: 6
     base-mp: 40
     base-sp: 60
-
-    # --- レベル成長 ---
     grow-hp: 3.0
     grow-atk: 2.0
     grow-mp: 4.0

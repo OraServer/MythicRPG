@@ -5,23 +5,21 @@ import org.bukkit.Bukkit;
 
 public class MythicLogger {
 
-    private static final String PREFIX = "[MythicRPG] ";
-
     public static void info(String msg) {
-        Bukkit.getLogger().info(PREFIX + msg);
+        Bukkit.getLogger().info("[MythicRPG] " + msg);
     }
 
     public static void warn(String msg) {
-        Bukkit.getLogger().warning(PREFIX + msg);
+        Bukkit.getLogger().warning("[MythicRPG] " + msg);
     }
 
     public static void error(String msg) {
-        Bukkit.getLogger().severe(PREFIX + msg);
+        Bukkit.getLogger().severe("[MythicRPG] " + msg);
     }
 
     public static void debug(String msg) {
         if (MythicRPG.getInstance().getConfig().getBoolean("debug")) {
-            Bukkit.getLogger().info(PREFIX + "§7[DEBUG] " + msg);
+            Bukkit.getLogger().info("[MythicRPG] [DEBUG] " + msg);
         }
     }
 }

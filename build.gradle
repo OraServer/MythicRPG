@@ -1,7 +1,6 @@
 plugins {
     id 'java'
-    id 'org.jetbrains.kotlin.jvm' version '1.8.22'
-    id 'com.github.johnrengelman.shadow' version '7.1.2'
+    id 'com.github.johnrengelman.shadow' version '8.1.1'
 }
 
 group = 'com.woxloi'
@@ -10,30 +9,33 @@ version = '1.0'
 repositories {
     mavenCentral()
     maven { url = 'https://repo.papermc.io/repository/maven-public/' }
-    maven { url = 'https://jitpack.io' }
+    // MythicMobs
+    maven { url = 'https://mvn.lumine.io/repository/maven-public/' }
 }
 
 dependencies {
     // Paper API
     compileOnly "io.papermc.paper:paper-api:1.20.4-R0.1-SNAPSHOT"
 
-    // Adventure
-    implementation "net.kyori:adventure-platform-bukkit:4.3.1"
+    // MythicMobs API (5.x / 1.20.4対応)
+    compileOnly "io.lumine:Mythic-Dist:5.3.5"
+
+    // MySQL Connector (shadowJarでバンドル)
+    implementation "com.mysql:mysql-connector-j:8.3.0"
+
+    // HikariCP (コネクションプール)
+    implementation "com.zaxxer:HikariCP:5.1.0"
 }
 
 def targetJavaVersion = 17
 java {
     sourceCompatibility = JavaVersion.toVersion(targetJavaVersion)
     targetCompatibility = JavaVersion.toVersion(targetJavaVersion)
-    if (JavaVersion.current() < JavaVersion.toVersion(targetJavaVersion)) {
-        toolchain.languageVersion = JavaLanguageVersion.of(targetJavaVersion)
-    }
 }
 
 tasks.withType(JavaCompile).configureEach {
-    if (targetJavaVersion >= 10 || JavaVersion.current().isJava10Compatible()) {
-        options.release = targetJavaVersion
-    }
+    options.release = targetJavaVersion
+    options.encoding = 'UTF-8'
 }
 
 processResources {
@@ -45,18 +47,11 @@ processResources {
     }
 }
 
-compileKotlin {
-    kotlinOptions {
-        jvmTarget = "17"
-    }
-}
-
-compileTestKotlin {
-    kotlinOptions {
-        jvmTarget = "17"
-    }
-}
-
 shadowJar {
     archiveFileName.set("${project.name}-${project.version}.jar")
+    // relocate でサーバー側ライブラリとの競合を防ぐ
+    relocate 'com.mysql', 'com.woxloi.libs.mysql'
+    relocate 'com.zaxxer.hikari', 'com.woxloi.libs.hikari'
 }
+
+build.dependsOn shadowJar

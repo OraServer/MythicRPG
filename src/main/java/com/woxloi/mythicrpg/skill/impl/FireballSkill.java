@@ -9,15 +9,8 @@ import org.bukkit.entity.SmallFireball;
 public class FireballSkill extends Skill {
 
     public FireballSkill() {
-        super(
-                "fireball",
-                "ファイアボール",
-                5,                      // CD
-                6L,                     // Lv6
-                SkillTrigger.RIGHT_CLICK,
-                ResourceType.MP,
-                20.0
-        );
+        super("fireball", "ファイアボール", 5, 6L,
+                SkillTrigger.RIGHT_CLICK, ResourceType.MP, 20.0);
     }
 
     @Override
