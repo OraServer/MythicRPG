@@ -153,33 +153,63 @@ public class MrpgCommand implements CommandExecutor, TabCompleter {
                 SkillLoader.load();
                 sender.sendMessage(MythicRPG.PREFIX + "§aリロードしました");
             }
+            case "pvpzone" -> {
+                if (!(sender instanceof Player player)) return true;
+                if (!player.hasPermission("mythicrpg.admin")) { MythicRPG.playerPrefixMsg(player, "§c権限がありません"); return true; }
+                if (args.length < 2) {
+                    MythicRPG.playerPrefixMsg(player, "§7/mrpg pvpzone create <id> <range> §8- 現在位置を中心に±range");
+                    return true;
+                }
+                if (args[1].equalsIgnoreCase("create")) {
+                    if (args.length < 4) { MythicRPG.playerPrefixMsg(player, "§c使い方: /mrpg pvpzone create <id> <range>"); return true; }
+                    String zoneId = args[2];
+                    double range;
+                    try { range = Double.parseDouble(args[3]); } catch (NumberFormatException ex) { MythicRPG.playerPrefixMsg(player, "§crangeは数値で指定してください"); return true; }
+                    var loc = player.getLocation();
+                    var corner1 = loc.clone().add(-range, -range, -range);
+                    var corner2 = loc.clone().add(range, range, range);
+                    com.woxloi.mythicrpg.pvp.PvpZoneManager.registerZone(
+                        new com.woxloi.mythicrpg.pvp.PvpZoneManager.PvpZone(
+                            zoneId, "PvPゾーン[" + zoneId + "]", corner1, corner2));
+                    MythicRPG.playerPrefixMsg(player, "§aPvPゾーン §e" + zoneId + " §aを半径 §e" + (int)range + " §aで登録しました");
+                }
+            }
             default -> { if (sender instanceof Player p) sendHelp(p); }
         }
         return true;
     }
 
     private void sendHelp(Player player) {
-        String help = "§e--- MythicRPG コマンド一覧 ---\n"
-                + "§7・/skill <id> - スキルを使用\n"
-                + "§7・/skills - スキル一覧を表示\n"
-                + "§7・/job - 職業情報を表示\n"
-                + "§7・/stats [gui] - ステータスを確認\n"
-                + "§7・/buff - バフの確認\n"
-                + "§7・/title - タイトルの確認・変更\n"
-                + "§7・/titlebook - タイトルブックを開く\n"
-                + "§7・/combo - コンボ情報を表示\n"
-                + "§7・/party - パーティー管理\n"
-                + "§7・/artifact - アーティファクト管理\n"
-                + "§7・/profile - プロフィールを表示\n"
-                + "§7・/dungeon [leave] - ダンジョン関連コマンド\n"
-                + "§7・/pet [summon/dismiss/info] - ペット管理\n"
-                + "§7・/pvp - PvPモード切り替え\n"
-                + "§7・/element - 属性情報を表示\n"
-                + "§7・/statdetail - 詳細ステータス表示";
+
+        MythicRPG.playerPrefixMsg(player, "§6§l━━━ MythicRPG コマンド ━━━");
+
+        MythicRPG.playerPrefixMsg(player, "§e▶ 基本");
+        MythicRPG.playerPrefixMsg(player, " §7/mrpg skill <id> §8- スキル使用");
+        MythicRPG.playerPrefixMsg(player, " §7/mrpg skills §8- スキル一覧GUI");
+        MythicRPG.playerPrefixMsg(player, " §7/mrpg job §8- ジョブ選択");
+        MythicRPG.playerPrefixMsg(player, " §7/mrpg stats [gui] §8- ステータス表示");
+
+        MythicRPG.playerPrefixMsg(player, "§e▶ システム");
+        MythicRPG.playerPrefixMsg(player, " §7/mrpg title §8- 称号設定");
+        MythicRPG.playerPrefixMsg(player, " §7/mrpg titlebook §8- 称号図鑑");
+        MythicRPG.playerPrefixMsg(player, " §7/mrpg combo §8- コンボ情報");
+        MythicRPG.playerPrefixMsg(player, " §7/mrpg profile §8- プロフィール");
+        MythicRPG.playerPrefixMsg(player, " §7/mrpg element §8- 属性耐性");
+
+        MythicRPG.playerPrefixMsg(player, "§e▶ コンテンツ");
+        MythicRPG.playerPrefixMsg(player, " §7/mrpg dungeon [leave] §8- ダンジョン");
+        MythicRPG.playerPrefixMsg(player, " §7/mrpg party ... §8- パーティ");
+        MythicRPG.playerPrefixMsg(player, " §7/mrpg pet ... §8- ペット");
+        MythicRPG.playerPrefixMsg(player, " §7/mrpg artifact ... §8- アーティファクト");
+        MythicRPG.playerPrefixMsg(player, " §7/mrpg pvp §8- PvPランキング");
+
         if (player.hasPermission("mythicrpg.admin")) {
-            help += "\n§c・/reload - プラグインを再読み込み（管理者専用）";
+            MythicRPG.playerPrefixMsg(player, "§c▶ 管理者");
+            MythicRPG.playerPrefixMsg(player, " §7/mrpg reload §8- 設定リロード");
+            MythicRPG.playerPrefixMsg(player, " §7/mrpg pvpzone create <id> <range>");
         }
-        MythicRPG.playerPrefixMsg(player, help);
+
+        MythicRPG.playerPrefixMsg(player, "§6§l━━━━━━━━━━━━━━━━━━━━━━");
     }
 
     private void sendPetHelp(Player player) {
@@ -196,7 +226,7 @@ public class MrpgCommand implements CommandExecutor, TabCompleter {
                 "skill","skills","job","stats","buff","title","titlebook",
                 "combo","party","artifact","profile","dungeon","pet","pvp","element","statdetail"
             ));
-            if (sender.hasPermission("mythicrpg.admin")) cmds.add("reload");
+            if (sender.hasPermission("mythicrpg.admin")) { cmds.add("reload"); cmds.add("pvpzone"); }
             return cmds.stream().filter(c -> c.startsWith(args[0].toLowerCase())).toList();
         }
         if (args.length == 2) return switch (args[0].toLowerCase()) {
@@ -206,6 +236,7 @@ public class MrpgCommand implements CommandExecutor, TabCompleter {
             case "party"    -> List.of("create","invite","join","leave","disband","info");
             case "dungeon"  -> List.of("leave");
             case "pet"      -> List.of("summon","dismiss","info");
+            case "pvpzone"  -> List.of("create");
             default -> List.of();
         };
         if (args.length == 3 && args[0].equalsIgnoreCase("pet") && args[1].equalsIgnoreCase("summon")) {

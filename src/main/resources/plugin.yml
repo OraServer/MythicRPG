@@ -10,8 +10,7 @@ depend:
 
 commands:
   mrpg:
-    description: MythicRPG main command
-    usage: /mrpg [skill|skills|job|stats]
+    description: MythicRPGメインコマンド
     permission: mythicrpg.use
 
 permissions:

@@ -25,6 +25,7 @@ import com.woxloi.mythicrpg.ui.stats.StatDetailGUI;
 import com.woxloi.mythicrpg.ui.title.TitleDetailGUI;
 import com.woxloi.mythicrpg.equipment.drop.DropTableRegistry;
 import com.woxloi.mythicrpg.combat.CombatListener;
+import com.woxloi.mythicrpg.combat.MobDamageListener;
 import com.woxloi.mythicrpg.equipment.drop.EquipDropListener;
 import com.woxloi.mythicrpg.equipment.enhancer.EnhanceGUIListener;
 import com.woxloi.mythicrpg.equipment.forge.ForgeGUIListener;
@@ -71,7 +72,10 @@ public class PluginBootstrap {
         // 2. スキルYAMLロード
         SkillLoader.load();
 
-        // 3. アーティファクト初期化
+        // 3. 装備レジストリ初期化（items/*.yml + デフォルト装備）
+        com.woxloi.mythicrpg.equipment.EquipmentRegistry.init(plugin.getDataFolder());
+
+        // 4. アーティファクト初期化
         ArtifactManager.init();
 
         // 4. ドロップテーブル初期化
@@ -142,6 +146,9 @@ public class PluginBootstrap {
         // 戦闘HP同期（最重要: バニラダメージ→PlayerData反映）
         Bukkit.getPluginManager().registerEvents(new CombatListener(), plugin);
 
+        // vs Mob RPGダメージ計算（ATK/DEF/クリティカル/コンボ倍率）
+        Bukkit.getPluginManager().registerEvents(new MobDamageListener(), plugin);
+
         // アーティファクト
         Bukkit.getPluginManager().registerEvents(new ArtifactListener(), plugin);
 
@@ -173,11 +180,11 @@ public class PluginBootstrap {
 
         // 属性システム
         Bukkit.getPluginManager().registerEvents(new ElementalDamageListener(), plugin);
-        Bukkit.getPluginManager().registerEvents(new ElementResistanceGUI(), plugin);
+        Bukkit.getPluginManager().registerEvents(ElementResistanceGUI.INSTANCE, plugin);
 
         // ダンジョン
         Bukkit.getPluginManager().registerEvents(new DungeonListener(), plugin);
-        Bukkit.getPluginManager().registerEvents(new DungeonGUI(), plugin);
+        Bukkit.getPluginManager().registerEvents(DungeonGUI.INSTANCE, plugin);
 
         // ペット
         Bukkit.getPluginManager().registerEvents(new PetListener(), plugin);
@@ -190,8 +197,8 @@ public class PluginBootstrap {
         Bukkit.getPluginManager().registerEvents(new StatGUI(), plugin);
         Bukkit.getPluginManager().registerEvents(new TitleGUI(), plugin);
         Bukkit.getPluginManager().registerEvents(new ProfileGUI(), plugin);
-        Bukkit.getPluginManager().registerEvents(new StatDetailGUI(), plugin);
-        Bukkit.getPluginManager().registerEvents(new TitleDetailGUI(), plugin);
+        Bukkit.getPluginManager().registerEvents(StatDetailGUI.INSTANCE, plugin);
+        Bukkit.getPluginManager().registerEvents(TitleDetailGUI.INSTANCE, plugin);
 
         // QuestPlugin連携 (QuestPluginが存在する場合のみ有効)
         if (QuestPluginBridge.isAvailable()) {

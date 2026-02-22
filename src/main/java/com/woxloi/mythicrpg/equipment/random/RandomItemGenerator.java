@@ -84,12 +84,12 @@ public class RandomItemGenerator {
 
     private static int generateRequiredLevel(EquipRarity rarity, Random random) {
         return switch (rarity) {
-            case COMMON    -> 1  + random.nextInt(10);
-            case UNCOMMON  -> 10 + random.nextInt(10);
-            case RARE      -> 20 + random.nextInt(15);
-            case EPIC      -> 35 + random.nextInt(15);
+            case COMMON -> 1 + random.nextInt(10);
+            case UNCOMMON -> 10 + random.nextInt(10);
+            case RARE -> 20 + random.nextInt(15);
+            case EPIC -> 35 + random.nextInt(15);
             case LEGENDARY -> 50 + random.nextInt(10);
-            case MYTHIC    -> 60 + random.nextInt(10);
+            case MYTHIC -> 60 + random.nextInt(10);
         };
     }
 

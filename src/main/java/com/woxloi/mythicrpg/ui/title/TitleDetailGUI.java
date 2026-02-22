@@ -22,7 +22,9 @@ public class TitleDetailGUI implements Listener {
 
     private static final String TITLE = "§6§l称号図鑑";
 
-    public TitleDetailGUI() {}
+    public static final TitleDetailGUI INSTANCE = new TitleDetailGUI();
+
+    private TitleDetailGUI() {}
 
     public static void open(Player player) {
         Inventory inv = Bukkit.createInventory(null, 54, TITLE);

@@ -1,8 +1,10 @@
 # =====================
-# 魔法使いスキル定義
+# 魔法使いスキル定義 (メイジ)
 # =====================
+
 skills:
 
+  # Lv1
   basic_attack:
     name: "基本攻撃"
     unlock-level: 1
@@ -13,14 +15,95 @@ skills:
     weapon: ANY
     effect: basic_attack
     damage-multiplier: 1.0
-    range: 3.0
+    range: 4.0
 
+  # Lv5
   fireball:
     name: "ファイアボール"
     unlock-level: 5
-    cooldown: 6
+    cooldown: 4
     trigger: RIGHT_CLICK
     resource: MP
     cost: 20
     weapon: BLAZE_ROD
     effect: projectile
+    damage-multiplier: 1.5
+    range: 1.0
+
+  # Lv10
+  mana_surge:
+    name: "マナサージ"
+    unlock-level: 10
+    cooldown: 30
+    trigger: RIGHT_CLICK
+    resource: NONE
+    cost: 0
+    weapon: ANY
+    effect: mp_regen
+    damage: 60.0
+    range: 1.0
+
+  # Lv15
+  frost_bolt:
+    name: "フロストボルト"
+    unlock-level: 15
+    cooldown: 6
+    trigger: RIGHT_CLICK
+    resource: MP
+    cost: 25
+    weapon: BLAZE_ROD
+    effect: ice_arrow
+    damage-multiplier: 1.2
+    range: 5.0
+
+  # Lv20
+  arcane_burst:
+    name: "アルカナバースト"
+    unlock-level: 20
+    cooldown: 10
+    trigger: RIGHT_CLICK
+    resource: MP
+    cost: 40
+    weapon: BLAZE_ROD
+    effect: area_damage
+    damage-multiplier: 2.0
+    range: 5.0
+
+  # Lv30
+  thunder_call:
+    name: "雷神召喚"
+    unlock-level: 30
+    cooldown: 15
+    trigger: RIGHT_CLICK
+    resource: MP
+    cost: 60
+    weapon: BLAZE_ROD
+    effect: thunder
+    damage-multiplier: 2.5
+    range: 8.0
+
+  # Lv40
+  chain_lightning:
+    name: "チェインライトニング"
+    unlock-level: 40
+    cooldown: 12
+    trigger: RIGHT_CLICK
+    resource: MP
+    cost: 70
+    weapon: BLAZE_ROD
+    effect: chain_attack
+    damage-multiplier: 2.0
+    range: 7.0
+
+  # Lv50
+  mana_shield:
+    name: "マナシールド"
+    unlock-level: 50
+    cooldown: 45
+    trigger: RIGHT_CLICK
+    resource: NONE
+    cost: 0
+    weapon: ANY
+    effect: buff_speed
+    damage: 0
+    range: 1.0

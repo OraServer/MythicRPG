@@ -22,7 +22,9 @@ public class StatDetailGUI implements Listener {
 
     private static final String TITLE = "§b§l詳細ステータス";
 
-    public StatDetailGUI() {}
+    public static final StatDetailGUI INSTANCE = new StatDetailGUI();
+
+    private StatDetailGUI() {}
 
     public static void open(Player player) {
         PlayerData data = PlayerDataManager.get(player);

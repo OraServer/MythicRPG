@@ -1,13 +1,15 @@
 # =====================
-# 戦士スキル定義
+# 戦士スキル定義 (ウォリアー)
 # =====================
-# trigger: RIGHT_CLICK / LEFT_CLICK / SHIFT_RIGHT_CLICK
+# trigger: RIGHT_CLICK / LEFT_CLICK
 # resource: MP / SP / NONE
 # weapon: SWORD / BOW / BLAZE_ROD / ANY
-# effect: スキルの効果タイプ (basic_attack / area_damage / projectile)
+# effect: basic_attack / area_damage / chain_attack / dash / self_heal /
+#          buff_speed / buff_strength / taunt
 
 skills:
 
+  # Lv1
   basic_attack:
     name: "基本攻撃"
     unlock-level: 1
@@ -17,17 +19,96 @@ skills:
     cost: 0
     weapon: ANY
     effect: basic_attack
-    damage-multiplier: 1.0   # attack × この倍率
+    damage-multiplier: 1.0
     range: 3.0
 
+  # Lv5
   power_slash:
     name: "パワースラッシュ"
     unlock-level: 5
     cooldown: 5
     trigger: RIGHT_CLICK
-    resource: MP
-    cost: 20
+    resource: NONE
+    cost: 0
     weapon: SWORD
     effect: area_damage
-    damage: 6.0
-    radius: 3.0
+    damage-multiplier: 1.8
+    range: 3.5
+
+  # Lv10
+  taunt:
+    name: "挑発"
+    unlock-level: 10
+    cooldown: 15
+    trigger: RIGHT_CLICK
+    resource: NONE
+    cost: 0
+    weapon: ANY
+    effect: taunt
+    damage: 0
+    range: 6.0
+
+  # Lv15
+  war_cry:
+    name: "ウォークライ"
+    unlock-level: 15
+    cooldown: 20
+    trigger: RIGHT_CLICK
+    resource: NONE
+    cost: 0
+    weapon: ANY
+    effect: buff_strength
+    damage: 0
+    range: 1.0
+
+  # Lv20
+  dash_attack:
+    name: "突進斬り"
+    unlock-level: 20
+    cooldown: 8
+    trigger: RIGHT_CLICK
+    resource: SP
+    cost: 30
+    weapon: SWORD
+    effect: dash
+    damage-multiplier: 1.5
+    range: 3.0
+
+  # Lv30
+  whirlwind:
+    name: "旋風斬り"
+    unlock-level: 30
+    cooldown: 12
+    trigger: RIGHT_CLICK
+    resource: SP
+    cost: 50
+    weapon: SWORD
+    effect: area_damage
+    damage-multiplier: 2.2
+    range: 4.0
+
+  # Lv40
+  chain_slash:
+    name: "連続斬り"
+    unlock-level: 40
+    cooldown: 10
+    trigger: RIGHT_CLICK
+    resource: SP
+    cost: 40
+    weapon: SWORD
+    effect: chain_attack
+    damage-multiplier: 1.2
+    range: 5.0
+
+  # Lv50
+  iron_will:
+    name: "鋼の意志"
+    unlock-level: 50
+    cooldown: 60
+    trigger: RIGHT_CLICK
+    resource: NONE
+    cost: 0
+    weapon: ANY
+    effect: self_heal
+    damage-multiplier: 0.3
+    range: 1.0

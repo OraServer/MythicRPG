@@ -22,6 +22,8 @@ public class ElementResistanceGUI implements Listener {
 
     private static final String TITLE = "§5⚗ §d属性耐性";
 
+    public static final ElementResistanceGUI INSTANCE = new ElementResistanceGUI();
+
     private static final Material[] ELEMENT_MATERIALS = {
         Material.BLAZE_POWDER,    // FIRE
         Material.PRISMARINE_SHARD,// WATER
@@ -32,7 +34,7 @@ public class ElementResistanceGUI implements Listener {
         Material.GRAY_DYE         // NONE
     };
 
-    public ElementResistanceGUI() {}
+    private ElementResistanceGUI() {}
 
     public static void open(Player player) {
         Inventory inv = Bukkit.createInventory(null, 27, TITLE);

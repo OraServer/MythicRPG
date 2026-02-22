@@ -24,6 +24,8 @@ public class DungeonGUI implements Listener {
 
     private static final String TITLE = "§4⚔ §cダンジョン選択";
 
+    public static final DungeonGUI INSTANCE = new DungeonGUI();
+
     private static final Material[] DUNGEON_ICONS = {
         Material.MOSSY_COBBLESTONE,
         Material.DARK_OAK_WOOD,
@@ -32,7 +34,7 @@ public class DungeonGUI implements Listener {
         Material.ANCIENT_DEBRIS
     };
 
-    public DungeonGUI() {}
+    private DungeonGUI() {}
 
     public static void open(Player player) {
         Inventory inv = Bukkit.createInventory(null, 54, TITLE);
