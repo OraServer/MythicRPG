@@ -1,9 +1,11 @@
 package com.woxloi.mythicrpg.player;
 
 import com.woxloi.mythicrpg.MythicRPG;
+import com.woxloi.mythicrpg.element.ElementManager;
 import com.woxloi.mythicrpg.job.JobSelectGUI;
+import com.woxloi.mythicrpg.pet.PetManager;
+import com.woxloi.mythicrpg.title.TitleManager;
 import com.woxloi.mythicrpg.ui.ScoreboardManager;
-import org.bukkit.Bukkit;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
 import org.bukkit.event.player.PlayerJoinEvent;
@@ -13,24 +15,35 @@ public class PlayerListener implements Listener {
 
     @EventHandler
     public void onJoin(PlayerJoinEvent event) {
-        PlayerDataManager.load(event.getPlayer());
-        ScoreboardManager.init(event.getPlayer());
+        var player = event.getPlayer();
 
-        Bukkit.getScheduler().runTaskLater(
+        // スコアボード初期化（データ読み込み前に構造だけ作る）
+        ScoreboardManager.init(player);
+
+        // プレイヤーデータ + 装備データを非同期ロード
+        // （PlayerDataManagerが完了後にEquipmentManager.applyStats・ScoreboardManager.updateも実行する）
+        PlayerDataManager.load(player);
+
+        // ジョブ未選択なら選択GUIを開く（2tick後：データロード完了を待つ）
+        MythicRPG.getInstance().getServer().getScheduler().runTaskLater(
                 MythicRPG.getInstance(),
                 () -> {
-                    PlayerData data = PlayerDataManager.get(event.getPlayer());
+                    PlayerData data = PlayerDataManager.get(player);
                     if (data != null && !data.hasJob()) {
-                        JobSelectGUI.open(event.getPlayer());
+                        JobSelectGUI.open(player);
                     }
                 },
-                2L
+                40L  // 2秒待つ（非同期DBロード完了を確実に待つため）
         );
     }
 
     @EventHandler
     public void onQuit(PlayerQuitEvent event) {
-        PlayerDataManager.save(event.getPlayer());
-        ScoreboardManager.remove(event.getPlayer());
+        var player = event.getPlayer();
+        PlayerDataManager.save(player);
+        ScoreboardManager.remove(player);
+        TitleManager.unload(player.getUniqueId());
+        ElementManager.clearPlayer(player.getUniqueId());
+        PetManager.unloadPetData(player.getUniqueId());
     }
 }

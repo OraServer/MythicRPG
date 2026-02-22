@@ -2,6 +2,8 @@ package com.woxloi.mythicrpg.combat;
 
 import com.woxloi.mythicrpg.MythicRPG;
 import com.woxloi.mythicrpg.level.LevelManager;
+import com.woxloi.mythicrpg.pet.PetManager;
+import com.woxloi.mythicrpg.title.TitleManager;
 import io.lumine.mythic.bukkit.MythicBukkit;
 import io.lumine.mythic.bukkit.events.MythicMobDeathEvent;
 import org.bukkit.entity.Player;
@@ -19,15 +21,14 @@ public class MobKillListener implements Listener {
     public void onMythicMobDeath(MythicMobDeathEvent event) {
         if (!(event.getKiller() instanceof Player killer)) return;
 
-        // MythicMobのレベルを取得
         int mobLevel = (int) event.getMob().getLevel();
         double multiplier = MythicRPG.getInstance()
                 .getConfig().getDouble("mythicmobs.exp-multiplier", 1.0);
-
-        // EXP = MobLv × 倍率 × 10
         double exp = mobLevel * multiplier * 10.0;
 
         LevelManager.addExp(killer, exp);
+        TitleManager.incrementMobKill(killer);
+        PetManager.addPetExp(killer.getUniqueId(), mobLevel * 3.0);
     }
 
     /* =====================
@@ -38,11 +39,11 @@ public class MobKillListener implements Listener {
         Player killer = event.getEntity().getKiller();
         if (killer == null) return;
 
-        // MythicMobなら上のイベントで処理するのでスキップ
         if (MythicBukkit.inst().getMobManager()
                 .isActiveMob(event.getEntity().getUniqueId())) return;
 
-        // 通常Mobは固定EXP
         LevelManager.addExp(killer, 10.0);
+        TitleManager.incrementMobKill(killer);
+        PetManager.addPetExp(killer.getUniqueId(), 5.0);
     }
 }

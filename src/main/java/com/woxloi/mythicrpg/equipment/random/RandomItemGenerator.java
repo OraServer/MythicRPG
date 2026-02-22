@@ -92,6 +92,7 @@ public class RandomItemGenerator {
             case MYTHIC    -> 60 + random.nextInt(10);
         };
     }
+
     private static Material slotToMaterial(EquipSlot slot) {
         return switch (slot) {
             case WEAPON, MAIN_HAND -> Material.IRON_SWORD;

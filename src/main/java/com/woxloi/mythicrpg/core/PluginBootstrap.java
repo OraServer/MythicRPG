@@ -24,12 +24,18 @@ import com.woxloi.mythicrpg.pvp.PvpRankingManager;
 import com.woxloi.mythicrpg.ui.stats.StatDetailGUI;
 import com.woxloi.mythicrpg.ui.title.TitleDetailGUI;
 import com.woxloi.mythicrpg.equipment.drop.DropTableRegistry;
+import com.woxloi.mythicrpg.combat.CombatListener;
 import com.woxloi.mythicrpg.equipment.drop.EquipDropListener;
+import com.woxloi.mythicrpg.equipment.enhancer.EnhanceGUIListener;
 import com.woxloi.mythicrpg.equipment.forge.ForgeGUIListener;
+import com.woxloi.mythicrpg.equipment.listener.EquipmentGUIListener;
 import com.woxloi.mythicrpg.equipment.identify.IdentifyListener;
 import com.woxloi.mythicrpg.equipment.refine.RefineGUIListener;
 import com.woxloi.mythicrpg.equipment.socket.SocketGUIListener;
 import com.woxloi.mythicrpg.equipment.transfer.TransferGUIListener;
+import com.woxloi.mythicrpg.stats.StatGUI;
+import com.woxloi.mythicrpg.title.TitleGUI;
+import com.woxloi.mythicrpg.ui.ProfileGUI;
 import com.woxloi.mythicrpg.job.JobListener;
 import com.woxloi.mythicrpg.party.PartyListener;
 import com.woxloi.mythicrpg.player.PlayerDataManager;
@@ -126,11 +132,15 @@ public class PluginBootstrap {
        Listeners
      ===================== */
     private void registerListeners() {
+        // コア
         Bukkit.getPluginManager().registerEvents(new PlayerListener(), plugin);
         Bukkit.getPluginManager().registerEvents(new SkillClickListener(), plugin);
         Bukkit.getPluginManager().registerEvents(new JobListener(), plugin);
         Bukkit.getPluginManager().registerEvents(new WeaponSkillListener(), plugin);
         Bukkit.getPluginManager().registerEvents(new MobKillListener(), plugin);
+
+        // 戦闘HP同期（最重要: バニラダメージ→PlayerData反映）
+        Bukkit.getPluginManager().registerEvents(new CombatListener(), plugin);
 
         // アーティファクト
         Bukkit.getPluginManager().registerEvents(new ArtifactListener(), plugin);
@@ -147,6 +157,10 @@ public class PluginBootstrap {
 
         // パーティー
         Bukkit.getPluginManager().registerEvents(new PartyListener(), plugin);
+
+        // 装備GUI（未登録だったもの）
+        Bukkit.getPluginManager().registerEvents(new EquipmentGUIListener(), plugin);
+        Bukkit.getPluginManager().registerEvents(new EnhanceGUIListener(), plugin);
 
         // 装備拡張システム
         Bukkit.getPluginManager().registerEvents(new EquipDropListener(), plugin);
@@ -172,7 +186,10 @@ public class PluginBootstrap {
         Bukkit.getPluginManager().registerEvents(new PvpListener(), plugin);
         Bukkit.getPluginManager().registerEvents(new PvpRankingManager(), plugin);
 
-        // UI補完
+        // UI（未登録だったもの）
+        Bukkit.getPluginManager().registerEvents(new StatGUI(), plugin);
+        Bukkit.getPluginManager().registerEvents(new TitleGUI(), plugin);
+        Bukkit.getPluginManager().registerEvents(new ProfileGUI(), plugin);
         Bukkit.getPluginManager().registerEvents(new StatDetailGUI(), plugin);
         Bukkit.getPluginManager().registerEvents(new TitleDetailGUI(), plugin);
 

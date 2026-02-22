@@ -4,10 +4,15 @@ import com.woxloi.mythicrpg.MythicRPG;
 import com.woxloi.mythicrpg.artifact.ArtifactCommand;
 import com.woxloi.mythicrpg.buff.BuffCommand;
 import com.woxloi.mythicrpg.combo.ComboManager;
+import com.woxloi.mythicrpg.dungeon.DungeonGUI;
+import com.woxloi.mythicrpg.dungeon.DungeonManager;
+import com.woxloi.mythicrpg.element.ElementResistanceGUI;
 import com.woxloi.mythicrpg.job.JobSelectGUI;
 import com.woxloi.mythicrpg.party.PartyCommand;
+import com.woxloi.mythicrpg.pet.PetManager;
 import com.woxloi.mythicrpg.player.PlayerData;
 import com.woxloi.mythicrpg.player.PlayerDataManager;
+import com.woxloi.mythicrpg.pvp.PvpRankingManager;
 import com.woxloi.mythicrpg.skill.SkillManager;
 import com.woxloi.mythicrpg.skill.loader.SkillLoader;
 import com.woxloi.mythicrpg.stats.StatGUI;
@@ -15,6 +20,8 @@ import com.woxloi.mythicrpg.title.TitleGUI;
 import com.woxloi.mythicrpg.title.TitleManager;
 import com.woxloi.mythicrpg.ui.ProfileGUI;
 import com.woxloi.mythicrpg.ui.skill.SkillGUI;
+import com.woxloi.mythicrpg.ui.stats.StatDetailGUI;
+import com.woxloi.mythicrpg.ui.title.TitleDetailGUI;
 import org.bukkit.command.Command;
 import org.bukkit.command.CommandExecutor;
 import org.bukkit.command.CommandSender;
@@ -94,6 +101,52 @@ public class MrpgCommand implements CommandExecutor, TabCompleter {
                 if (!(sender instanceof Player player)) return true;
                 ProfileGUI.open(player);
             }
+            case "dungeon" -> {
+                if (!(sender instanceof Player player)) return true;
+                if (args.length >= 2 && args[1].equalsIgnoreCase("leave")) {
+                    DungeonManager.leave(player);
+                } else {
+                    DungeonGUI.open(player);
+                }
+            }
+            case "pet" -> {
+                if (!(sender instanceof Player player)) return true;
+                if (args.length >= 2) {
+                    switch (args[1].toLowerCase()) {
+                        case "summon" -> {
+                            if (args.length < 3) { MythicRPG.playerPrefixMsg(player, "§c使い方: /mrpg pet summon <id>"); return true; }
+                            String err = PetManager.summon(player, args[2]);
+                            if (err != null) MythicRPG.playerPrefixMsg(player, "§c" + err);
+                        }
+                        case "dismiss" -> PetManager.dismiss(player);
+                        case "info" -> {
+                            var petData = PetManager.getPetData(player.getUniqueId());
+                            if (petData == null) { MythicRPG.playerPrefixMsg(player, "§7ペットがいません"); return true; }
+                            var def = PetManager.getDefinition(petData.getPetDefinitionId());
+                            MythicRPG.playerPrefixMsg(player, def != null ? def.getDisplayName() + " §7" + petData.getExpDisplay() : "§c不明なペット");
+                        }
+                        default -> sendPetHelp(player);
+                    }
+                } else {
+                    sendPetHelp(player);
+                }
+            }
+            case "pvp" -> {
+                if (!(sender instanceof Player player)) return true;
+                PvpRankingManager.sendRanking(player);
+            }
+            case "element" -> {
+                if (!(sender instanceof Player player)) return true;
+                ElementResistanceGUI.open(player);
+            }
+            case "statdetail" -> {
+                if (!(sender instanceof Player player)) return true;
+                StatDetailGUI.open(player);
+            }
+            case "titlebook" -> {
+                if (!(sender instanceof Player player)) return true;
+                TitleDetailGUI.open(player);
+            }
             case "reload" -> {
                 if (!sender.hasPermission("mythicrpg.admin")) { sender.sendMessage(MythicRPG.PREFIX + "§c権限がありません"); return true; }
                 MythicRPG.getInstance().reloadConfig();
@@ -106,18 +159,43 @@ public class MrpgCommand implements CommandExecutor, TabCompleter {
     }
 
     private void sendHelp(Player player) {
-        // ヘルプは1メッセージにまとめて送信（長くなりすぎるのを防止）
-        String help = "§e--- MythicRPG コマンド ---\n"
-                + "§7skill <id> / skills / job / stats [gui]\n"
-                + "§7buff / title / combo / party / artifact / profile";
-        if (player.hasPermission("mythicrpg.admin")) help += "\n§creload §7[管理者]";
+        String help = "§e--- MythicRPG コマンド一覧 ---\n"
+                + "§7・/skill <id> - スキルを使用\n"
+                + "§7・/skills - スキル一覧を表示\n"
+                + "§7・/job - 職業情報を表示\n"
+                + "§7・/stats [gui] - ステータスを確認\n"
+                + "§7・/buff - バフの確認\n"
+                + "§7・/title - タイトルの確認・変更\n"
+                + "§7・/titlebook - タイトルブックを開く\n"
+                + "§7・/combo - コンボ情報を表示\n"
+                + "§7・/party - パーティー管理\n"
+                + "§7・/artifact - アーティファクト管理\n"
+                + "§7・/profile - プロフィールを表示\n"
+                + "§7・/dungeon [leave] - ダンジョン関連コマンド\n"
+                + "§7・/pet [summon/dismiss/info] - ペット管理\n"
+                + "§7・/pvp - PvPモード切り替え\n"
+                + "§7・/element - 属性情報を表示\n"
+                + "§7・/statdetail - 詳細ステータス表示";
+        if (player.hasPermission("mythicrpg.admin")) {
+            help += "\n§c・/reload - プラグインを再読み込み（管理者専用）";
+        }
         MythicRPG.playerPrefixMsg(player, help);
+    }
+
+    private void sendPetHelp(Player player) {
+        MythicRPG.playerPrefixMsg(player, "§7/mrpg pet summon <id> / dismiss / info");
+        MythicRPG.playerPrefixMsg(player, "§7使用可能なペットID: §e"
+                + String.join(", ", PetManager.getAllDefinitions().stream()
+                        .map(d -> d.getId()).toList()));
     }
 
     @Override
     public List<String> onTabComplete(CommandSender sender, Command command, String label, String[] args) {
         if (args.length == 1) {
-            List<String> cmds = new ArrayList<>(List.of("skill","skills","job","stats","buff","title","combo","party","artifact","profile"));
+            List<String> cmds = new ArrayList<>(List.of(
+                "skill","skills","job","stats","buff","title","titlebook",
+                "combo","party","artifact","profile","dungeon","pet","pvp","element","statdetail"
+            ));
             if (sender.hasPermission("mythicrpg.admin")) cmds.add("reload");
             return cmds.stream().filter(c -> c.startsWith(args[0].toLowerCase())).toList();
         }
@@ -126,8 +204,16 @@ public class MrpgCommand implements CommandExecutor, TabCompleter {
             case "artifact" -> List.of("gui","info","check","list","give");
             case "buff"     -> List.of("list","add","clear");
             case "party"    -> List.of("create","invite","join","leave","disband","info");
+            case "dungeon"  -> List.of("leave");
+            case "pet"      -> List.of("summon","dismiss","info");
             default -> List.of();
         };
+        if (args.length == 3 && args[0].equalsIgnoreCase("pet") && args[1].equalsIgnoreCase("summon")) {
+            return PetManager.getAllDefinitions().stream()
+                    .map(d -> d.getId())
+                    .filter(id -> id.startsWith(args[2].toLowerCase()))
+                    .toList();
+        }
         return List.of();
     }
 }

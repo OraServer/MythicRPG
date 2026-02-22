@@ -96,6 +96,9 @@ public class EquipmentManager {
         // 移動速度
         double baseSpeed = 0.2;
         player.setWalkSpeed((float) Math.min(1.0, baseSpeed + total.speed));
+
+        // Bukkit の max_health アトリビュートを PlayerData に合わせて更新
+        com.woxloi.mythicrpg.combat.CombatListener.applyMaxHealthAttribute(player, data);
     }
 
     /* =====================

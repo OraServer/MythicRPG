@@ -56,6 +56,9 @@ public class TitleManager {
         if (data == null) return;
 
         TitleStats stats = getStats(player);
+        // PlayerDataのlevelをTitleStatsに同期（レベルベースの称号判定に使用）
+        stats.level = data.getLevel();
+
         Set<TitleDefinition> unlocked = unlockedTitles.computeIfAbsent(player.getUniqueId(), k -> new HashSet<>());
 
         for (TitleDefinition title : TitleDefinition.values()) {
@@ -77,6 +80,12 @@ public class TitleManager {
                 player.sendMessage("§7/mrpg title で称号を選択できます");
             }
         }
+    }
+
+    /** ログアウト時にキャッシュをクリア */
+    public static void unload(UUID uuid) {
+        playerStats.remove(uuid);
+        // 称号リストはDBに保存していないので消さない（ログアウトしても保持）
     }
 
     // ─────────────────────────────────
