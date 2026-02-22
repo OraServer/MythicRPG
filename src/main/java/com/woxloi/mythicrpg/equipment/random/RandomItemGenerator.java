@@ -89,9 +89,9 @@ public class RandomItemGenerator {
             case RARE      -> 20 + random.nextInt(15);
             case EPIC      -> 35 + random.nextInt(15);
             case LEGENDARY -> 50 + random.nextInt(10);
+            case MYTHIC    -> 60 + random.nextInt(10);
         };
     }
-
     private static Material slotToMaterial(EquipSlot slot) {
         return switch (slot) {
             case WEAPON, MAIN_HAND -> Material.IRON_SWORD;

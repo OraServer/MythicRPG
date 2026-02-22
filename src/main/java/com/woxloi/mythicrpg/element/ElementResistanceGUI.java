@@ -32,7 +32,7 @@ public class ElementResistanceGUI implements Listener {
         Material.GRAY_DYE         // NONE
     };
 
-    private ElementResistanceGUI() {}
+    public ElementResistanceGUI() {}
 
     public static void open(Player player) {
         Inventory inv = Bukkit.createInventory(null, 27, TITLE);

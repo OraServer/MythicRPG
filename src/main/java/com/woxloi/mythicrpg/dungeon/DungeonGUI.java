@@ -32,7 +32,7 @@ public class DungeonGUI implements Listener {
         Material.ANCIENT_DEBRIS
     };
 
-    private DungeonGUI() {}
+    public DungeonGUI() {}
 
     public static void open(Player player) {
         Inventory inv = Bukkit.createInventory(null, 54, TITLE);

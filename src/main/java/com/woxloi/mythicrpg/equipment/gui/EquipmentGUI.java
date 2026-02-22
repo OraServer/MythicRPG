@@ -34,8 +34,8 @@ public class EquipmentGUI {
             case CHESTPLATE -> 10;
             case LEGGINGS   -> 19;
             case BOOTS      -> 28;
-            case WEAPON     -> 3;
-            case OFFHAND    -> 12;
+            case WEAPON, MAIN_HAND -> 3;
+            case OFFHAND, OFF_HAND -> 12;
             case RING_L     -> 21;
             case RING_R     -> 30;
             case NECKLACE   -> 39;
