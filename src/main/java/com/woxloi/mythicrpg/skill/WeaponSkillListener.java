@@ -1,5 +1,6 @@
 package com.woxloi.mythicrpg.skill;
 
+import com.woxloi.mythicrpg.core.PluginToggleManager;
 import com.woxloi.mythicrpg.player.PlayerData;
 import com.woxloi.mythicrpg.player.PlayerDataManager;
 import com.woxloi.mythicrpg.skill.loader.YamlSkill;
@@ -14,6 +15,7 @@ public class WeaponSkillListener implements Listener {
     @EventHandler
     public void onUse(PlayerInteractEvent e) {
         Player player = e.getPlayer();
+        if (!PluginToggleManager.isEnabled("skills")) return;
         PlayerData data = PlayerDataManager.get(player);
         if (data == null || !data.hasJob()) return;
 

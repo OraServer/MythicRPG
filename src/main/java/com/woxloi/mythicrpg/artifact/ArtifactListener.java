@@ -1,6 +1,7 @@
 package com.woxloi.mythicrpg.artifact;
 
 import com.woxloi.mythicrpg.MythicRPG;
+import com.woxloi.mythicrpg.core.PluginToggleManager;
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.EventPriority;
@@ -30,6 +31,7 @@ public class ArtifactListener implements Listener {
      */
     @EventHandler
     public void onJoin(PlayerJoinEvent e) {
+        if (!PluginToggleManager.isEnabled("artifact")) return;
         // 1tick後に実行（インベントリ読み込み完了を待つ）
         MythicRPG.getInstance().getServer().getScheduler()
                 .runTaskLater(MythicRPG.getInstance(),

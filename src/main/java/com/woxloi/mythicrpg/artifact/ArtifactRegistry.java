@@ -1,124 +1,191 @@
 package com.woxloi.mythicrpg.artifact;
 
+import com.woxloi.mythicrpg.MythicRPG;
+import com.woxloi.mythicrpg.core.MythicLogger;
 import com.woxloi.mythicrpg.equipment.model.EquipSlot;
+import org.bukkit.configuration.ConfigurationSection;
+import org.bukkit.configuration.file.FileConfiguration;
+import org.bukkit.configuration.file.YamlConfiguration;
 
+import java.io.File;
+import java.io.InputStream;
+import java.io.InputStreamReader;
+import java.nio.charset.StandardCharsets;
 import java.util.*;
 
 /**
  * 全アーティファクトピースの定義レジストリ。
  *
- * キー: pieceId (例: "dragon_slayer_sword")
- * 値  : ArtifactPiece
+ * artifacts.yml から動的に読み込む。
+ * reload() でホットリロード可能。
  *
- * アイテム生成時・識別時にここを参照する。
+ * MythicMobs連携ドロップテーブルも管理:
+ *   mobDropTable: MythicMob内部名 → List<DropEntry(pieceId, chance)>
  */
 public class ArtifactRegistry {
 
+    // ─── ピースレジストリ ───
     private static final Map<String, ArtifactPiece> registry = new LinkedHashMap<>();
 
-    static {
-        // ── DRAGON_SLAYER セット (6ピース) ──
-        reg(ArtifactType.DRAGON_SLAYER, EquipSlot.MAIN_HAND,
-                "dragon_slayer_sword",  "§4竜殺しの大剣",        80,  5,   0,   0);
-        reg(ArtifactType.DRAGON_SLAYER, EquipSlot.OFF_HAND,
-                "dragon_slayer_shield", "§4竜鱗の盾",             10, 30,  50,   0);
-        reg(ArtifactType.DRAGON_SLAYER, EquipSlot.HELMET,
-                "dragon_slayer_helm",   "§4竜頭の兜",              5, 15, 100,   0);
-        reg(ArtifactType.DRAGON_SLAYER, EquipSlot.CHESTPLATE,
-                "dragon_slayer_chest",  "§4竜鱗の鎧",             10, 25, 150,   0);
-        reg(ArtifactType.DRAGON_SLAYER, EquipSlot.LEGGINGS,
-                "dragon_slayer_legs",   "§4竜鱗の脚甲",            5, 20,  80,   0);
-        reg(ArtifactType.DRAGON_SLAYER, EquipSlot.BOOTS,
-                "dragon_slayer_boots",  "§4竜鱗の靴",              5, 10,  50,   0);
+    // ─── MythicMobsドロップテーブル ───
+    // key: MythicMob内部名, value: ドロップエントリリスト
+    private static final Map<String, List<MobDropEntry>> mobDropTable = new HashMap<>();
 
-        // ── SHADOW_ASSASSIN セット (6ピース) ──
-        reg(ArtifactType.SHADOW_ASSASSIN, EquipSlot.MAIN_HAND,
-                "shadow_dagger",        "§8影の短剣",             70,  0,   0,   0);
-        reg(ArtifactType.SHADOW_ASSASSIN, EquipSlot.OFF_HAND,
-                "shadow_blade",         "§8影の刃",               60,  0,   0,   0);
-        reg(ArtifactType.SHADOW_ASSASSIN, EquipSlot.HELMET,
-                "shadow_hood",          "§8影のフード",             0,  8,  50,  20);
-        reg(ArtifactType.SHADOW_ASSASSIN, EquipSlot.CHESTPLATE,
-                "shadow_coat",          "§8影のコート",             5, 12,  80,  30);
-        reg(ArtifactType.SHADOW_ASSASSIN, EquipSlot.LEGGINGS,
-                "shadow_pants",         "§8影のズボン",             3,  8,  50,  20);
-        reg(ArtifactType.SHADOW_ASSASSIN, EquipSlot.BOOTS,
-                "shadow_boots",         "§8影のブーツ",             3,  5,  30,  10);
+    /** MythicMobsドロップエントリ */
+    public record MobDropEntry(String pieceId, double chance) {}
 
-        // ── ARCANE_SCHOLAR セット (6ピース) ──
-        reg(ArtifactType.ARCANE_SCHOLAR, EquipSlot.MAIN_HAND,
-                "arcane_staff",         "§d秘術のスタッフ",        50,  0,   0, 100);
-        reg(ArtifactType.ARCANE_SCHOLAR, EquipSlot.OFF_HAND,
-                "arcane_tome",          "§d秘術の魔導書",           20,  0,   0, 150);
-        reg(ArtifactType.ARCANE_SCHOLAR, EquipSlot.HELMET,
-                "arcane_hat",           "§d秘術の帽子",              0,  5,  30, 120);
-        reg(ArtifactType.ARCANE_SCHOLAR, EquipSlot.CHESTPLATE,
-                "arcane_robe",          "§d秘術のローブ",            5,  8,  50, 200);
-        reg(ArtifactType.ARCANE_SCHOLAR, EquipSlot.LEGGINGS,
-                "arcane_skirt",         "§d秘術のスカート",           0,  5,  30, 100);
-        reg(ArtifactType.ARCANE_SCHOLAR, EquipSlot.BOOTS,
-                "arcane_shoes",         "§d秘術の靴",                0,  3,  20,  80);
+    // ─── セット定義レジストリ ───
+    // YAMLから読んだセット定義（bonus-stats等）を保持
+    private static final Map<String, ArtifactSetDef> setDefRegistry = new LinkedHashMap<>();
 
-        // ── IRON_FORTRESS セット (6ピース) ──
-        reg(ArtifactType.IRON_FORTRESS, EquipSlot.MAIN_HAND,
-                "fortress_sword",       "§7鉄壁の剣",             40, 10,  50,   0);
-        reg(ArtifactType.IRON_FORTRESS, EquipSlot.OFF_HAND,
-                "fortress_shield",      "§7鉄壁の盾",              5, 50, 100,   0);
-        reg(ArtifactType.IRON_FORTRESS, EquipSlot.HELMET,
-                "fortress_helm",        "§7鉄壁の兜",              0, 30, 150,   0);
-        reg(ArtifactType.IRON_FORTRESS, EquipSlot.CHESTPLATE,
-                "fortress_plate",       "§7鉄壁の胸当て",            0, 50, 250,   0);
-        reg(ArtifactType.IRON_FORTRESS, EquipSlot.LEGGINGS,
-                "fortress_legs",        "§7鉄壁の脚甲",             0, 35, 180,   0);
-        reg(ArtifactType.IRON_FORTRESS, EquipSlot.BOOTS,
-                "fortress_boots",       "§7鉄壁の靴",               0, 25, 120,   0);
+    /** セット定義（YAML由来） */
+    public record ArtifactSetDef(
+            String setKey,
+            String display,
+            String description,
+            int[] piecesRequired,
+            String[] bonusDescriptions,
+            // tier→stat bonus map
+            Map<Integer, Map<String, Object>> tierBonuses
+    ) {}
 
-        // ── HERO_OF_LIGHT セット (6ピース) ──
-        reg(ArtifactType.HERO_OF_LIGHT, EquipSlot.MAIN_HAND,
-                "hero_sword",           "§e光の勇者の剣",          60, 10,  50,  30);
-        reg(ArtifactType.HERO_OF_LIGHT, EquipSlot.OFF_HAND,
-                "hero_shield",          "§e光の勇者の盾",           10, 30,  80,  20);
-        reg(ArtifactType.HERO_OF_LIGHT, EquipSlot.HELMET,
-                "hero_helm",            "§e光の勇者の兜",            5, 15, 120,  20);
-        reg(ArtifactType.HERO_OF_LIGHT, EquipSlot.CHESTPLATE,
-                "hero_plate",           "§e光の勇者の鎧",           10, 25, 200,  40);
-        reg(ArtifactType.HERO_OF_LIGHT, EquipSlot.LEGGINGS,
-                "hero_legs",            "§e光の勇者の脚甲",          5, 18, 120,  25);
-        reg(ArtifactType.HERO_OF_LIGHT, EquipSlot.BOOTS,
-                "hero_boots",           "§e光の勇者の靴",            5, 12,  80,  15);
+    // =========================================================
+    //  初期化・リロード
+    // =========================================================
 
-        // ── ANCIENT_KING セット (6ピース) ──
-        reg(ArtifactType.ANCIENT_KING, EquipSlot.MAIN_HAND,
-                "king_sword",           "§5古代王の覇剣",          90, 15, 100,  50);
-        reg(ArtifactType.ANCIENT_KING, EquipSlot.OFF_HAND,
-                "king_orb",             "§5古代王のオーブ",         30, 20,  80, 100);
-        reg(ArtifactType.ANCIENT_KING, EquipSlot.HELMET,
-                "king_crown",           "§5古代王の王冠",           10, 20, 150,  80);
-        reg(ArtifactType.ANCIENT_KING, EquipSlot.CHESTPLATE,
-                "king_armor",           "§5古代王の鎧",             20, 35, 300, 100);
-        reg(ArtifactType.ANCIENT_KING, EquipSlot.LEGGINGS,
-                "king_legs",            "§5古代王の脚甲",           10, 25, 200,  60);
-        reg(ArtifactType.ANCIENT_KING, EquipSlot.BOOTS,
-                "king_boots",           "§5古代王の靴",             10, 18, 120,  40);
+    /**
+     * artifacts.yml を読み込んでレジストリを構築する。
+     * PluginBootstrap.enable() で呼ぶ。
+     */
+    public static void load() {
+        registry.clear();
+        mobDropTable.clear();
+        setDefRegistry.clear();
+
+        File file = new File(MythicRPG.getInstance().getDataFolder(), "artifacts.yml");
+        if (!file.exists()) {
+            MythicRPG.getInstance().saveResource("artifacts.yml", false);
+        }
+
+        FileConfiguration yaml = YamlConfiguration.loadConfiguration(file);
+
+        // jar内デフォルトをフォールバックに設定
+        InputStream defaultStream = MythicRPG.getInstance().getResource("artifacts.yml");
+        if (defaultStream != null) {
+            YamlConfiguration defaults = YamlConfiguration.loadConfiguration(
+                    new InputStreamReader(defaultStream, StandardCharsets.UTF_8));
+            yaml.setDefaults(defaults);
+        }
+
+        // セット定義を読み込む
+        ConfigurationSection setsSection = yaml.getConfigurationSection("sets");
+        if (setsSection != null) {
+            for (String setKey : setsSection.getKeys(false)) {
+                loadSetDef(setKey, setsSection.getConfigurationSection(setKey));
+            }
+        }
+
+        // ピース定義を読み込む
+        ConfigurationSection piecesSection = yaml.getConfigurationSection("pieces");
+        if (piecesSection != null) {
+            for (String pieceId : piecesSection.getKeys(false)) {
+                loadPiece(pieceId, piecesSection.getConfigurationSection(pieceId));
+            }
+        }
+
+        MythicLogger.info("アーティファクト読み込み完了: "
+                + registry.size() + "ピース / "
+                + setDefRegistry.size() + "セット / "
+                + mobDropTable.values().stream().mapToInt(List::size).sum() + "ドロップエントリ");
     }
 
-    private static void reg(ArtifactType type, EquipSlot slot,
-                            String id, String name,
-                            int atk, int def, int hp, int mp) {
-        registry.put(id, new ArtifactPiece(type, slot, id, name, atk, def, hp, mp));
+    private static void loadSetDef(String setKey, ConfigurationSection sec) {
+        if (sec == null) return;
+        try {
+            String display = sec.getString("display", setKey);
+            String description = sec.getString("description", "");
+            List<Integer> reqList = sec.getIntegerList("pieces-required");
+            int[] piecesRequired = reqList.stream().mapToInt(i -> i).toArray();
+            List<String> descList = sec.getStringList("bonus-descriptions");
+            String[] bonusDescriptions = descList.toArray(new String[0]);
+
+            // tier bonus stats
+            Map<Integer, Map<String, Object>> tierBonuses = new LinkedHashMap<>();
+            ConfigurationSection bonusStats = sec.getConfigurationSection("bonus-stats");
+            if (bonusStats != null) {
+                for (String tierKey : bonusStats.getKeys(false)) {
+                    int tier = Integer.parseInt(tierKey.replace("tier", ""));
+                    ConfigurationSection ts = bonusStats.getConfigurationSection(tierKey);
+                    if (ts == null) continue;
+                    Map<String, Object> bonusMap = new LinkedHashMap<>();
+                    for (String statKey : ts.getKeys(false)) {
+                        bonusMap.put(statKey, ts.get(statKey));
+                    }
+                    tierBonuses.put(tier, bonusMap);
+                }
+            }
+
+            setDefRegistry.put(setKey, new ArtifactSetDef(
+                    setKey, display, description, piecesRequired, bonusDescriptions, tierBonuses));
+        } catch (Exception e) {
+            MythicLogger.warn("セット定義読み込み失敗 [" + setKey + "]: " + e.getMessage());
+        }
     }
 
-    /** IDからピースを取得 */
+    private static void loadPiece(String pieceId, ConfigurationSection sec) {
+        if (sec == null) return;
+        try {
+            String setKey = sec.getString("set", "");
+            // ArtifactTypeはenumなので変換（YAMLのsetKeyがenum名に一致すること前提）
+            ArtifactType setType;
+            try {
+                setType = ArtifactType.valueOf(setKey.toUpperCase());
+            } catch (IllegalArgumentException e) {
+                MythicLogger.warn("ピース [" + pieceId + "] の set値 '" + setKey + "' が不明なArtifactTypeです");
+                return;
+            }
+
+            String name = sec.getString("name", pieceId);
+            EquipSlot slot;
+            try {
+                slot = EquipSlot.valueOf(sec.getString("slot", "WEAPON").toUpperCase());
+            } catch (IllegalArgumentException e) {
+                slot = EquipSlot.WEAPON;
+            }
+
+            int atk = sec.getInt("atk", 0);
+            int def = sec.getInt("def", 0);
+            int hp  = sec.getInt("hp",  0);
+            int mp  = sec.getInt("mp",  0);
+
+            registry.put(pieceId, new ArtifactPiece(setType, slot, pieceId, name, atk, def, hp, mp));
+
+            // MythicMobsドロップテーブル登録
+            ConfigurationSection drops = sec.getConfigurationSection("mythicmob-drops");
+            if (drops != null) {
+                for (String mobId : drops.getKeys(false)) {
+                    double chance = drops.getDouble(mobId, 0.0);
+                    mobDropTable.computeIfAbsent(mobId, k -> new ArrayList<>())
+                                .add(new MobDropEntry(pieceId, chance));
+                }
+            }
+        } catch (Exception e) {
+            MythicLogger.warn("ピース読み込み失敗 [" + pieceId + "]: " + e.getMessage());
+        }
+    }
+
+    // =========================================================
+    //  公開API — ピース
+    // =========================================================
+
     public static ArtifactPiece get(String id) {
         return registry.get(id);
     }
 
-    /** 全ピース取得 */
     public static Collection<ArtifactPiece> all() {
-        return registry.values();
+        return Collections.unmodifiableCollection(registry.values());
     }
 
-    /** 指定セットに属するピースを取得 */
     public static List<ArtifactPiece> ofSet(ArtifactType type) {
         List<ArtifactPiece> list = new ArrayList<>();
         for (ArtifactPiece p : registry.values()) {
@@ -127,8 +194,47 @@ public class ArtifactRegistry {
         return list;
     }
 
-    /** IDが登録済みか */
     public static boolean exists(String id) {
         return registry.containsKey(id);
+    }
+
+    // =========================================================
+    //  公開API — セット定義
+    // =========================================================
+
+    public static ArtifactSetDef getSetDef(String setKey) {
+        return setDefRegistry.get(setKey);
+    }
+
+    public static Collection<ArtifactSetDef> allSetDefs() {
+        return Collections.unmodifiableCollection(setDefRegistry.values());
+    }
+
+    // =========================================================
+    //  公開API — MythicMobsドロップ
+    // =========================================================
+
+    /**
+     * 指定MythicMob内部名に対するドロップエントリ一覧を返す。
+     * 存在しない場合は空リスト。
+     */
+    public static List<MobDropEntry> getDropsForMob(String mythicMobId) {
+        return mobDropTable.getOrDefault(mythicMobId, Collections.emptyList());
+    }
+
+    /**
+     * ドロップテーブルが登録されている全MythicMob内部名を返す。
+     */
+    public static Set<String> registeredMobIds() {
+        return Collections.unmodifiableSet(mobDropTable.keySet());
+    }
+
+    /**
+     * 件数サマリ（デバッグ用）
+     */
+    public static String summary() {
+        return "pieces=" + registry.size()
+                + " sets=" + setDefRegistry.size()
+                + " mobDropEntries=" + mobDropTable.values().stream().mapToInt(List::size).sum();
     }
 }

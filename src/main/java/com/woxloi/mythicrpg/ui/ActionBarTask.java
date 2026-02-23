@@ -3,6 +3,7 @@ package com.woxloi.mythicrpg.ui;
 import com.woxloi.mythicrpg.MythicRPG;
 import com.woxloi.mythicrpg.player.PlayerData;
 import com.woxloi.mythicrpg.player.PlayerDataManager;
+import com.woxloi.mythicrpg.core.PluginToggleManager;
 import org.bukkit.Bukkit;
 import org.bukkit.scheduler.BukkitRunnable;
 
@@ -12,6 +13,7 @@ public class ActionBarTask extends BukkitRunnable {
 
     @Override
     public void run() {
+        if (!PluginToggleManager.isEnabled("actionbar")) return;
         Bukkit.getOnlinePlayers().forEach(player -> {
             PlayerData data = PlayerDataManager.get(player);
             if (data != null) ActionBarManager.update(player, data);

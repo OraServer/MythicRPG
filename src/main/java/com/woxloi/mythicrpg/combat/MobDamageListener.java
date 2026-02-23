@@ -8,6 +8,7 @@ import com.woxloi.mythicrpg.player.PlayerDataManager;
 import net.kyori.adventure.text.Component;
 import org.bukkit.entity.LivingEntity;
 import org.bukkit.entity.Monster;
+import com.woxloi.mythicrpg.core.PluginToggleManager;
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.EventPriority;
@@ -46,6 +47,7 @@ public class MobDamageListener implements Listener {
      */
     @EventHandler(priority = EventPriority.NORMAL, ignoreCancelled = true)
     public void onPlayerAttackMob(EntityDamageByEntityEvent event) {
+        if (!PluginToggleManager.isEnabled("combat")) return;
         if (!(event.getDamager() instanceof Player player)) return;
         if (event.getEntity() instanceof Player) return; // PvPはスキップ（PvpListenerが処理）
 
@@ -84,6 +86,7 @@ public class MobDamageListener implements Listener {
      */
     @EventHandler(priority = EventPriority.NORMAL, ignoreCancelled = true)
     public void onMobAttackPlayer(EntityDamageByEntityEvent event) {
+        if (!PluginToggleManager.isEnabled("combat")) return;
         if (!(event.getEntity() instanceof Player player)) return;
         if (event.getDamager() instanceof Player) return; // PvPはスキップ
 

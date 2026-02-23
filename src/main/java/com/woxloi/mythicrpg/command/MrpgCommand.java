@@ -29,6 +29,7 @@ import org.bukkit.command.TabCompleter;
 import org.bukkit.entity.Player;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
 
 public class MrpgCommand implements CommandExecutor, TabCompleter {
 
@@ -151,7 +152,25 @@ public class MrpgCommand implements CommandExecutor, TabCompleter {
                 if (!sender.hasPermission("mythicrpg.admin")) { sender.sendMessage(MythicRPG.PREFIX + "§c権限がありません"); return true; }
                 MythicRPG.getInstance().reloadConfig();
                 SkillLoader.load();
-                sender.sendMessage(MythicRPG.PREFIX + "§aリロードしました");
+                com.woxloi.mythicrpg.artifact.ArtifactRegistry.load();
+                sender.sendMessage(MythicRPG.PREFIX + "§aリロードしました (config / skills / artifacts)");
+            }
+            case "toggle" -> {
+                if (!sender.hasPermission("mythicrpg.admin")) { sender.sendMessage(MythicRPG.PREFIX + "§c権限がありません"); return true; }
+                if (args.length < 2) {
+                    sendToggleStatus(sender);
+                    return true;
+                }
+                String sys = args[1].toLowerCase();
+                if (!com.woxloi.mythicrpg.core.PluginToggleManager.validSystems().contains(sys)) {
+                    sender.sendMessage(MythicRPG.PREFIX + "§c不明なシステム: §e" + sys);
+                    sender.sendMessage(MythicRPG.PREFIX + "§7有効なシステム: §f" 
+                        + String.join(", ", com.woxloi.mythicrpg.core.PluginToggleManager.validSystems()));
+                    return true;
+                }
+                boolean newState = com.woxloi.mythicrpg.core.PluginToggleManager.toggle(sys);
+                sender.sendMessage(MythicRPG.PREFIX + "§e" + sys + " §7→ "
+                    + (newState ? "§aON" : "§cOFF"));
             }
             case "pvpzone" -> {
                 if (!(sender instanceof Player player)) return true;
@@ -177,6 +196,17 @@ public class MrpgCommand implements CommandExecutor, TabCompleter {
             default -> { if (sender instanceof Player p) sendHelp(p); }
         }
         return true;
+    }
+
+    private void sendToggleStatus(org.bukkit.command.CommandSender sender) {
+        sender.sendMessage("§e§l--- MythicRPG システム状態 ---");
+        com.woxloi.mythicrpg.core.PluginToggleManager.allStates()
+            .entrySet().stream()
+            .sorted(Map.Entry.comparingByKey())
+            .forEach(e -> sender.sendMessage(
+                String.format("§7%-12s §8: %s", e.getKey(),
+                    e.getValue() ? "§aON" : "§cOFF")));
+        sender.sendMessage("§7/mrpg toggle <system> でON/OFFを切替");
     }
 
     private void sendHelp(Player player) {
@@ -212,6 +242,7 @@ public class MrpgCommand implements CommandExecutor, TabCompleter {
         MythicRPG.playerPrefixMsg(player, "§6§l━━━━━━━━━━━━━━━━━━━━━━");
     }
 
+
     private void sendPetHelp(Player player) {
         MythicRPG.playerPrefixMsg(player, "§7/mrpg pet summon <id> / dismiss / info");
         MythicRPG.playerPrefixMsg(player, "§7使用可能なペットID: §e"
@@ -226,7 +257,7 @@ public class MrpgCommand implements CommandExecutor, TabCompleter {
                 "skill","skills","job","stats","buff","title","titlebook",
                 "combo","party","artifact","profile","dungeon","pet","pvp","element","statdetail"
             ));
-            if (sender.hasPermission("mythicrpg.admin")) { cmds.add("reload"); cmds.add("pvpzone"); }
+            if (sender.hasPermission("mythicrpg.admin")) { cmds.add("reload"); cmds.add("pvpzone"); cmds.add("toggle"); }
             return cmds.stream().filter(c -> c.startsWith(args[0].toLowerCase())).toList();
         }
         if (args.length == 2) return switch (args[0].toLowerCase()) {
@@ -237,6 +268,7 @@ public class MrpgCommand implements CommandExecutor, TabCompleter {
             case "dungeon"  -> List.of("leave");
             case "pet"      -> List.of("summon","dismiss","info");
             case "pvpzone"  -> List.of("create");
+            case "toggle"   -> new ArrayList<>(com.woxloi.mythicrpg.core.PluginToggleManager.validSystems());
             default -> List.of();
         };
         if (args.length == 3 && args[0].equalsIgnoreCase("pet") && args[1].equalsIgnoreCase("summon")) {

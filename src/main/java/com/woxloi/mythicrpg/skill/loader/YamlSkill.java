@@ -316,5 +316,3 @@ public class YamlSkill extends Skill {
         MythicRPG.msg(player, "§7ターゲットが見つかりません");
     }
 }
-
-

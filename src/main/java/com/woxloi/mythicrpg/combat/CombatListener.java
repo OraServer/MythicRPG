@@ -46,7 +46,7 @@ public class CombatListener implements Listener {
                     if (!player.isOnline()) return;
                     // Bukkit HP (0〜20) → PlayerData HP (0〜maxHp) にスケーリング
                     double ratio = player.getHealth() / player.getAttribute(Attribute.GENERIC_MAX_HEALTH).getValue();
-                    data.setHp(data.getMaxHp() * ratio);
+                    data.setHp(data.getTotalMaxHp() * ratio);
                     ScoreboardManager.update(player);
                 });
     }
@@ -65,7 +65,7 @@ public class CombatListener implements Listener {
                 MythicRPG.getInstance(), () -> {
                     if (!player.isOnline()) return;
                     double ratio = player.getHealth() / player.getAttribute(Attribute.GENERIC_MAX_HEALTH).getValue();
-                    data.setHp(data.getMaxHp() * ratio);
+                    data.setHp(data.getTotalMaxHp() * ratio);
                     ScoreboardManager.update(player);
                 });
     }
@@ -98,7 +98,7 @@ public class CombatListener implements Listener {
         MythicRPG.getInstance().getServer().getScheduler().runTask(
                 MythicRPG.getInstance(), () -> {
                     applyMaxHealthAttribute(player, data);
-                    data.setHp(data.getMaxHp()); // 全回復
+                    data.setHp(data.getTotalMaxHp()); // 全回復
                     ScoreboardManager.update(player);
                 });
     }
@@ -114,7 +114,7 @@ public class CombatListener implements Listener {
     public static void applyMaxHealthAttribute(Player player, PlayerData data) {
         var attr = player.getAttribute(Attribute.GENERIC_MAX_HEALTH);
         if (attr == null) return;
-        double newMax = Math.min(2048.0, Math.max(1.0, data.getMaxHp() + data.getEquipMaxHpBonus()));
+        double newMax = Math.min(2048.0, Math.max(1.0, data.getTotalMaxHp()));
         attr.setBaseValue(newMax);
         // 現在HPも超過しないよう調整
         if (player.getHealth() > newMax) {

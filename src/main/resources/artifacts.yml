@@ -1,0 +1,825 @@
+# =============================================================
+# MythicRPG アーティファクト定義ファイル
+# =============================================================
+# ここでアーティファクトセットとピース（パーツ）を自由に追加できます。
+# コードを書かずにYAMLだけで新しいセットを作成できます。
+#
+# MythicMobs連携:
+#   各ピースの mythicmob-drops に MythicMob の内部名を記載すると、
+#   そのMobを倒したとき指定確率でアーティファクトがドロップします。
+# =============================================================
+
+sets:
+
+  # ──────────────────────────────────────────────
+  # 竜殺しの業物 - 攻撃特化6セット
+  # ──────────────────────────────────────────────
+  DRAGON_SLAYER:
+    display: "§4§l竜殺しの業物"
+    description: "古代の竜を倒した英雄の装備セット"
+    pieces-required: [2, 4, 6]
+    bonus-descriptions:
+      - "ATK +15%"
+      - "炎ダメージ +25% / 竜属性ダメージ +50%"
+      - "「竜の咆哮」スキル解放: 周囲の敵に爆発ダメージ"
+    # セットボーナスの数値 (tier1～tier3)
+    bonus-stats:
+      tier1: { atk-percent: 15 }
+      tier2: { atk-percent: 25, special: "dragon_fire" }
+      tier3: { atk-percent: 30, special: "dragon_roar_skill" }
+
+  # ──────────────────────────────────────────────
+  # 影の暗殺者 - クリティカル特化6セット
+  # ──────────────────────────────────────────────
+  SHADOW_ASSASSIN:
+    display: "§8§l影の暗殺者"
+    description: "闇に生きる刺客の装備セット"
+    pieces-required: [2, 4, 6]
+    bonus-descriptions:
+      - "クリティカル率 +10%"
+      - "背後攻撃ダメージ +40% / 移動速度 +10%"
+      - "「影潜り」スキル解放: 3秒間透明化 + 次の攻撃が2倍ダメージ"
+    bonus-stats:
+      tier1: { crit-rate: 0.10 }
+      tier2: { crit-rate: 0.05, crit-damage: 0.40, special: "shadow_step" }
+      tier3: { crit-rate: 0.05, crit-damage: 0.40, special: "shadow_vanish_skill" }
+
+  # ──────────────────────────────────────────────
+  # 鉄壁の要塞 - 防御特化6セット
+  # ──────────────────────────────────────────────
+  IRON_FORTRESS:
+    display: "§7§l鉄壁の要塞"
+    description: "鉄壁の防衛者が纏う装備セット"
+    pieces-required: [2, 4, 6]
+    bonus-descriptions:
+      - "MaxHP +200"
+      - "受ダメージ -15% / ノックバック無効"
+      - "「鉄壁」スキル解放: 10秒間ダメージ90%軽減"
+    bonus-stats:
+      tier1: { max-hp: 200 }
+      tier2: { max-hp: 300, def: 30, special: "no_knockback" }
+      tier3: { max-hp: 200, def: 50, special: "iron_wall_skill" }
+
+  # ──────────────────────────────────────────────
+  # 秘術の学者 - 魔法特化6セット
+  # ──────────────────────────────────────────────
+  ARCANE_SCHOLAR:
+    display: "§d§l秘術の学者"
+    description: "古代魔法を極めた学者の装備セット"
+    pieces-required: [2, 4, 6]
+    bonus-descriptions:
+      - "MaxMP +100 / MP回復 +3/秒"
+      - "スキルダメージ +30% / スキルコスト -20%"
+      - "「魔力解放」スキル解放: 全スキルのクールダウンリセット"
+    bonus-stats:
+      tier1: { max-mp: 100 }
+      tier2: { max-mp: 150, atk-percent: 30, special: "mana_amp" }
+      tier3: { max-mp: 100, special: "arcane_release_skill" }
+
+  # ──────────────────────────────────────────────
+  # 光の勇者 - バランス型6セット
+  # ──────────────────────────────────────────────
+  HERO_OF_LIGHT:
+    display: "§e§l光の勇者"
+    description: "光の加護を受けた勇者の装備セット"
+    pieces-required: [2, 4, 6]
+    bonus-descriptions:
+      - "ATK +10% / MaxHP +100"
+      - "EXP獲得量 +20% / 全ステータス +5%"
+      - "「光輝爆発」スキル解放: 周囲を浄化し、味方を回復させる"
+    bonus-stats:
+      tier1: { atk-percent: 10, max-hp: 100 }
+      tier2: { atk-percent: 5, max-hp: 100, special: "exp_boost" }
+      tier3: { atk-percent: 5, max-hp: 100, max-mp: 50, special: "holy_burst_skill" }
+
+  # ──────────────────────────────────────────────
+  # 古代王の遺産 - 伝説6セット
+  # ──────────────────────────────────────────────
+  ANCIENT_KING:
+    display: "§5§l古代王の遺産"
+    description: "失われた古代王国の王が纏った伝説の装備セット"
+    pieces-required: [2, 4, 6]
+    bonus-descriptions:
+      - "全ステータス +10%"
+      - "死亡時20%で復活 (HP50%回復) / コンボ倍率 +0.5"
+      - "「王の威光」スキル解放: 30秒間、全パーティーメンバーの攻撃力2倍"
+    bonus-stats:
+      tier1: { atk-percent: 10, max-hp: 100, max-mp: 50 }
+      tier2: { atk-percent: 10, max-hp: 100, max-mp: 50, special: "revival_chance" }
+      tier3: { atk-percent: 10, max-hp: 200, max-mp: 100, special: "kings_aura_skill" }
+
+  # ──────────────────────────────────────────────
+  # 霜の魔女 - 氷属性2セット (カスタム追加例)
+  # ──────────────────────────────────────────────
+  FROST_WITCH:
+    display: "§3§l霜の魔女"
+    description: "氷の魔法を操る魔女の装備セット"
+    pieces-required: [2, 4]
+    bonus-descriptions:
+      - "氷属性ダメージ +35%"
+      - "攻撃時15%で凍結付与 (3秒)"
+    bonus-stats:
+      tier1: { atk-percent: 35 }
+      tier2: { special: "freeze_on_hit" }
+
+  # ──────────────────────────────────────────────
+  # 嵐の射手 - 弓特化2セット
+  # ──────────────────────────────────────────────
+  STORM_ARCHER:
+    display: "§b§l嵐の射手"
+    description: "風を操る弓使いの装備セット"
+    pieces-required: [2, 4]
+    bonus-descriptions:
+      - "遠距離ダメージ +20%"
+      - "多段射撃: 矢が貫通して2体まで命中"
+    bonus-stats:
+      tier1: { atk-percent: 20 }
+      tier2: { special: "arrow_pierce" }
+
+  # ──────────────────────────────────────────────
+  # 大地の守護者 - HP再生2セット
+  # ──────────────────────────────────────────────
+  EARTH_GUARDIAN:
+    display: "§a§l大地の守護者"
+    description: "大地の力を宿した守護者の装備セット"
+    pieces-required: [2, 4]
+    bonus-descriptions:
+      - "MaxHP +300 / 自然回復 +5HP/秒"
+      - "木・土属性ダメージ免疫"
+    bonus-stats:
+      tier1: { max-hp: 300, special: "hp_regen" }
+      tier2: { max-hp: 200, special: "earth_immunity" }
+
+  # ──────────────────────────────────────────────
+  # 旅人の知恵 - ユーティリティ2セット
+  # ──────────────────────────────────────────────
+  WANDERER:
+    display: "§6§l旅人の知恵"
+    description: "各地を旅した冒険者の装備セット"
+    pieces-required: [2, 4]
+    bonus-descriptions:
+      - "移動速度 +15% / 落下ダメージ無効"
+      - "クエストEXP報酬 +30%"
+    bonus-stats:
+      tier1: { special: "speed_boost" }
+      tier2: { special: "quest_exp_boost" }
+
+
+# =============================================================
+# ピース（パーツ）定義
+# =============================================================
+# slot: WEAPON / HELMET / CHESTPLATE / LEGGINGS / BOOTS /
+#       OFFHAND / RING_L / RING_R / NECKLACE / RELIC
+# material: BukkitのMaterial名
+# mythicmob-drops: MythicMob内部名 → ドロップ確率 のマップ
+# =============================================================
+
+pieces:
+
+  # ═══════════════════ DRAGON_SLAYER ═══════════════════
+  dragon_slayer_sword:
+    set: DRAGON_SLAYER
+    name: "§4竜殺しの大剣"
+    slot: WEAPON
+    material: NETHERITE_SWORD
+    atk: 80
+    def: 5
+    hp: 0
+    mp: 0
+    mythicmob-drops:
+      DragonBoss: 0.30
+      EliteKnight: 0.05
+
+  dragon_slayer_shield:
+    set: DRAGON_SLAYER
+    name: "§4竜鱗の盾"
+    slot: OFFHAND
+    material: SHIELD
+    atk: 10
+    def: 30
+    hp: 50
+    mp: 0
+    mythicmob-drops:
+      DragonBoss: 0.30
+
+  dragon_slayer_helm:
+    set: DRAGON_SLAYER
+    name: "§4竜頭の兜"
+    slot: HELMET
+    material: NETHERITE_HELMET
+    atk: 5
+    def: 15
+    hp: 100
+    mp: 0
+    mythicmob-drops:
+      DragonBoss: 0.25
+      DragonMinion: 0.08
+
+  dragon_slayer_chest:
+    set: DRAGON_SLAYER
+    name: "§4竜鱗の鎧"
+    slot: CHESTPLATE
+    material: NETHERITE_CHESTPLATE
+    atk: 10
+    def: 25
+    hp: 150
+    mp: 0
+    mythicmob-drops:
+      DragonBoss: 0.25
+
+  dragon_slayer_legs:
+    set: DRAGON_SLAYER
+    name: "§4竜鱗の脚甲"
+    slot: LEGGINGS
+    material: NETHERITE_LEGGINGS
+    atk: 5
+    def: 20
+    hp: 80
+    mp: 0
+    mythicmob-drops:
+      DragonBoss: 0.20
+      DragonMinion: 0.05
+
+  dragon_slayer_boots:
+    set: DRAGON_SLAYER
+    name: "§4竜鱗の靴"
+    slot: BOOTS
+    material: NETHERITE_BOOTS
+    atk: 5
+    def: 10
+    hp: 50
+    mp: 0
+    mythicmob-drops:
+      DragonBoss: 0.20
+      DragonMinion: 0.05
+
+  # ═══════════════════ SHADOW_ASSASSIN ═══════════════════
+  shadow_dagger:
+    set: SHADOW_ASSASSIN
+    name: "§8影の短剣"
+    slot: WEAPON
+    material: IRON_SWORD
+    atk: 70
+    def: 0
+    hp: 0
+    mp: 0
+    mythicmob-drops:
+      ShadowAssassin: 0.25
+      DarkElf: 0.08
+
+  shadow_blade:
+    set: SHADOW_ASSASSIN
+    name: "§8影の刃"
+    slot: OFFHAND
+    material: IRON_SWORD
+    atk: 60
+    def: 0
+    hp: 0
+    mp: 0
+    mythicmob-drops:
+      ShadowAssassin: 0.25
+
+  shadow_hood:
+    set: SHADOW_ASSASSIN
+    name: "§8影のフード"
+    slot: HELMET
+    material: LEATHER_HELMET
+    atk: 0
+    def: 8
+    hp: 50
+    mp: 20
+    mythicmob-drops:
+      ShadowAssassin: 0.20
+      DarkElf: 0.06
+
+  shadow_coat:
+    set: SHADOW_ASSASSIN
+    name: "§8影のコート"
+    slot: CHESTPLATE
+    material: LEATHER_CHESTPLATE
+    atk: 5
+    def: 12
+    hp: 80
+    mp: 30
+    mythicmob-drops:
+      ShadowAssassin: 0.20
+
+  shadow_pants:
+    set: SHADOW_ASSASSIN
+    name: "§8影のズボン"
+    slot: LEGGINGS
+    material: LEATHER_LEGGINGS
+    atk: 3
+    def: 8
+    hp: 50
+    mp: 20
+    mythicmob-drops:
+      ShadowAssassin: 0.15
+      DarkElf: 0.05
+
+  shadow_boots:
+    set: SHADOW_ASSASSIN
+    name: "§8影のブーツ"
+    slot: BOOTS
+    material: LEATHER_BOOTS
+    atk: 3
+    def: 5
+    hp: 30
+    mp: 10
+    mythicmob-drops:
+      ShadowAssassin: 0.15
+
+  # ═══════════════════ IRON_FORTRESS ═══════════════════
+  fortress_sword:
+    set: IRON_FORTRESS
+    name: "§7鉄壁の剣"
+    slot: WEAPON
+    material: IRON_SWORD
+    atk: 40
+    def: 10
+    hp: 50
+    mp: 0
+    mythicmob-drops:
+      IronGolem: 0.20
+      ForgeKnight: 0.10
+
+  fortress_shield:
+    set: IRON_FORTRESS
+    name: "§7鉄壁の盾"
+    slot: OFFHAND
+    material: SHIELD
+    atk: 5
+    def: 50
+    hp: 100
+    mp: 0
+    mythicmob-drops:
+      IronGolem: 0.20
+
+  fortress_helm:
+    set: IRON_FORTRESS
+    name: "§7鉄壁の兜"
+    slot: HELMET
+    material: IRON_HELMET
+    atk: 0
+    def: 30
+    hp: 150
+    mp: 0
+    mythicmob-drops:
+      IronGolem: 0.18
+
+  fortress_plate:
+    set: IRON_FORTRESS
+    name: "§7鉄壁の胸当て"
+    slot: CHESTPLATE
+    material: IRON_CHESTPLATE
+    atk: 0
+    def: 50
+    hp: 250
+    mp: 0
+    mythicmob-drops:
+      IronGolem: 0.15
+
+  fortress_legs:
+    set: IRON_FORTRESS
+    name: "§7鉄壁の脚甲"
+    slot: LEGGINGS
+    material: IRON_LEGGINGS
+    atk: 0
+    def: 35
+    hp: 180
+    mp: 0
+    mythicmob-drops:
+      IronGolem: 0.15
+
+  fortress_boots:
+    set: IRON_FORTRESS
+    name: "§7鉄壁の靴"
+    slot: BOOTS
+    material: IRON_BOOTS
+    atk: 0
+    def: 25
+    hp: 120
+    mp: 0
+    mythicmob-drops:
+      IronGolem: 0.12
+
+  # ═══════════════════ ARCANE_SCHOLAR ═══════════════════
+  arcane_staff:
+    set: ARCANE_SCHOLAR
+    name: "§d秘術のスタッフ"
+    slot: WEAPON
+    material: BLAZE_ROD
+    atk: 50
+    def: 0
+    hp: 0
+    mp: 100
+    mythicmob-drops:
+      ArcaneWizard: 0.25
+      SpellCaster: 0.08
+
+  arcane_tome:
+    set: ARCANE_SCHOLAR
+    name: "§d秘術の魔導書"
+    slot: OFFHAND
+    material: ENCHANTED_BOOK
+    atk: 20
+    def: 0
+    hp: 0
+    mp: 150
+    mythicmob-drops:
+      ArcaneWizard: 0.25
+
+  arcane_hat:
+    set: ARCANE_SCHOLAR
+    name: "§d秘術の帽子"
+    slot: HELMET
+    material: LEATHER_HELMET
+    atk: 0
+    def: 5
+    hp: 30
+    mp: 120
+    mythicmob-drops:
+      ArcaneWizard: 0.20
+
+  arcane_robe:
+    set: ARCANE_SCHOLAR
+    name: "§d秘術のローブ"
+    slot: CHESTPLATE
+    material: LEATHER_CHESTPLATE
+    atk: 5
+    def: 8
+    hp: 50
+    mp: 200
+    mythicmob-drops:
+      ArcaneWizard: 0.20
+
+  arcane_skirt:
+    set: ARCANE_SCHOLAR
+    name: "§d秘術のスカート"
+    slot: LEGGINGS
+    material: LEATHER_LEGGINGS
+    atk: 0
+    def: 5
+    hp: 30
+    mp: 100
+    mythicmob-drops:
+      ArcaneWizard: 0.15
+
+  arcane_shoes:
+    set: ARCANE_SCHOLAR
+    name: "§d秘術の靴"
+    slot: BOOTS
+    material: LEATHER_BOOTS
+    atk: 0
+    def: 3
+    hp: 20
+    mp: 80
+    mythicmob-drops:
+      ArcaneWizard: 0.15
+
+  # ═══════════════════ HERO_OF_LIGHT ═══════════════════
+  hero_sword:
+    set: HERO_OF_LIGHT
+    name: "§e光の勇者の剣"
+    slot: WEAPON
+    material: GOLDEN_SWORD
+    atk: 60
+    def: 10
+    hp: 50
+    mp: 30
+    mythicmob-drops:
+      LightPaladin: 0.20
+      AngelBoss: 0.30
+
+  hero_shield:
+    set: HERO_OF_LIGHT
+    name: "§e光の勇者の盾"
+    slot: OFFHAND
+    material: SHIELD
+    atk: 10
+    def: 30
+    hp: 80
+    mp: 20
+    mythicmob-drops:
+      LightPaladin: 0.20
+
+  hero_helm:
+    set: HERO_OF_LIGHT
+    name: "§e光の勇者の兜"
+    slot: HELMET
+    material: GOLDEN_HELMET
+    atk: 5
+    def: 15
+    hp: 120
+    mp: 20
+    mythicmob-drops:
+      LightPaladin: 0.18
+
+  hero_plate:
+    set: HERO_OF_LIGHT
+    name: "§e光の勇者の鎧"
+    slot: CHESTPLATE
+    material: GOLDEN_CHESTPLATE
+    atk: 10
+    def: 25
+    hp: 200
+    mp: 40
+    mythicmob-drops:
+      LightPaladin: 0.15
+
+  hero_legs:
+    set: HERO_OF_LIGHT
+    name: "§e光の勇者の脚甲"
+    slot: LEGGINGS
+    material: GOLDEN_LEGGINGS
+    atk: 5
+    def: 18
+    hp: 120
+    mp: 25
+    mythicmob-drops:
+      LightPaladin: 0.15
+
+  hero_boots:
+    set: HERO_OF_LIGHT
+    name: "§e光の勇者の靴"
+    slot: BOOTS
+    material: GOLDEN_BOOTS
+    atk: 5
+    def: 12
+    hp: 80
+    mp: 15
+    mythicmob-drops:
+      LightPaladin: 0.12
+
+  # ═══════════════════ ANCIENT_KING ═══════════════════
+  king_sword:
+    set: ANCIENT_KING
+    name: "§5古代王の覇剣"
+    slot: WEAPON
+    material: NETHERITE_SWORD
+    atk: 90
+    def: 15
+    hp: 100
+    mp: 50
+    mythicmob-drops:
+      AncientKingBoss: 0.40
+      LegendaryKnight: 0.10
+
+  king_orb:
+    set: ANCIENT_KING
+    name: "§5古代王のオーブ"
+    slot: OFFHAND
+    material: NETHER_STAR
+    atk: 30
+    def: 20
+    hp: 80
+    mp: 100
+    mythicmob-drops:
+      AncientKingBoss: 0.35
+
+  king_crown:
+    set: ANCIENT_KING
+    name: "§5古代王の王冠"
+    slot: HELMET
+    material: NETHERITE_HELMET
+    atk: 10
+    def: 20
+    hp: 150
+    mp: 80
+    mythicmob-drops:
+      AncientKingBoss: 0.30
+
+  king_armor:
+    set: ANCIENT_KING
+    name: "§5古代王の鎧"
+    slot: CHESTPLATE
+    material: NETHERITE_CHESTPLATE
+    atk: 20
+    def: 35
+    hp: 300
+    mp: 100
+    mythicmob-drops:
+      AncientKingBoss: 0.25
+
+  king_legs:
+    set: ANCIENT_KING
+    name: "§5古代王の脚甲"
+    slot: LEGGINGS
+    material: NETHERITE_LEGGINGS
+    atk: 10
+    def: 25
+    hp: 200
+    mp: 60
+    mythicmob-drops:
+      AncientKingBoss: 0.25
+
+  king_boots:
+    set: ANCIENT_KING
+    name: "§5古代王の靴"
+    slot: BOOTS
+    material: NETHERITE_BOOTS
+    atk: 10
+    def: 18
+    hp: 120
+    mp: 40
+    mythicmob-drops:
+      AncientKingBoss: 0.20
+
+  # ═══════════════════ FROST_WITCH ═══════════════════
+  frost_staff:
+    set: FROST_WITCH
+    name: "§3霜の魔女の杖"
+    slot: WEAPON
+    material: BLAZE_ROD
+    atk: 55
+    def: 0
+    hp: 0
+    mp: 120
+    mythicmob-drops:
+      FrostWitchBoss: 0.30
+      IceSpecter: 0.08
+
+  frost_robe:
+    set: FROST_WITCH
+    name: "§3霜の魔女のローブ"
+    slot: CHESTPLATE
+    material: LEATHER_CHESTPLATE
+    atk: 0
+    def: 10
+    hp: 60
+    mp: 180
+    mythicmob-drops:
+      FrostWitchBoss: 0.25
+
+  frost_hat:
+    set: FROST_WITCH
+    name: "§3霜の魔女の帽子"
+    slot: HELMET
+    material: LEATHER_HELMET
+    atk: 0
+    def: 6
+    hp: 40
+    mp: 100
+    mythicmob-drops:
+      FrostWitchBoss: 0.22
+
+  frost_boots:
+    set: FROST_WITCH
+    name: "§3霜の魔女の靴"
+    slot: BOOTS
+    material: LEATHER_BOOTS
+    atk: 0
+    def: 4
+    hp: 30
+    mp: 60
+    mythicmob-drops:
+      IceSpecter: 0.12
+
+  # ═══════════════════ STORM_ARCHER ═══════════════════
+  storm_bow:
+    set: STORM_ARCHER
+    name: "§b嵐の弓"
+    slot: WEAPON
+    material: BOW
+    atk: 65
+    def: 0
+    hp: 0
+    mp: 0
+    mythicmob-drops:
+      WindArcher: 0.25
+      StormEagle: 0.10
+
+  storm_quiver:
+    set: STORM_ARCHER
+    name: "§b嵐の矢筒"
+    slot: OFFHAND
+    material: ARROW
+    atk: 20
+    def: 0
+    hp: 0
+    mp: 0
+    mythicmob-drops:
+      WindArcher: 0.22
+
+  storm_cloak:
+    set: STORM_ARCHER
+    name: "§b嵐のクローク"
+    slot: CHESTPLATE
+    material: LEATHER_CHESTPLATE
+    atk: 5
+    def: 10
+    hp: 60
+    mp: 30
+    mythicmob-drops:
+      WindArcher: 0.18
+
+  storm_boots:
+    set: STORM_ARCHER
+    name: "§b嵐の長靴"
+    slot: BOOTS
+    material: LEATHER_BOOTS
+    atk: 3
+    def: 6
+    hp: 40
+    mp: 20
+    mythicmob-drops:
+      StormEagle: 0.15
+
+  # ═══════════════════ EARTH_GUARDIAN ═══════════════════
+  earth_hammer:
+    set: EARTH_GUARDIAN
+    name: "§a大地のハンマー"
+    slot: WEAPON
+    material: WOODEN_AXE
+    atk: 45
+    def: 15
+    hp: 80
+    mp: 0
+    mythicmob-drops:
+      EarthGolem: 0.20
+      TreeSpirit: 0.08
+
+  earth_armor:
+    set: EARTH_GUARDIAN
+    name: "§a大地の鎧"
+    slot: CHESTPLATE
+    material: LEATHER_CHESTPLATE
+    atk: 0
+    def: 30
+    hp: 200
+    mp: 0
+    mythicmob-drops:
+      EarthGolem: 0.18
+
+  earth_helm:
+    set: EARTH_GUARDIAN
+    name: "§a大地の兜"
+    slot: HELMET
+    material: LEATHER_HELMET
+    atk: 0
+    def: 20
+    hp: 150
+    mp: 0
+    mythicmob-drops:
+      EarthGolem: 0.15
+
+  earth_boots:
+    set: EARTH_GUARDIAN
+    name: "§a大地の靴"
+    slot: BOOTS
+    material: LEATHER_BOOTS
+    atk: 0
+    def: 15
+    hp: 100
+    mp: 0
+    mythicmob-drops:
+      TreeSpirit: 0.12
+
+  # ═══════════════════ WANDERER ═══════════════════
+  wanderer_boots:
+    set: WANDERER
+    name: "§6旅人の長靴"
+    slot: BOOTS
+    material: LEATHER_BOOTS
+    atk: 5
+    def: 5
+    hp: 40
+    mp: 20
+    mythicmob-drops:
+      RoamingBandit: 0.15
+
+  wanderer_cloak:
+    set: WANDERER
+    name: "§6旅人のクローク"
+    slot: CHESTPLATE
+    material: LEATHER_CHESTPLATE
+    atk: 8
+    def: 8
+    hp: 60
+    mp: 30
+    mythicmob-drops:
+      RoamingBandit: 0.12
+
+  wanderer_hat:
+    set: WANDERER
+    name: "§6旅人の帽子"
+    slot: HELMET
+    material: LEATHER_HELMET
+    atk: 5
+    def: 5
+    hp: 40
+    mp: 20
+    mythicmob-drops:
+      RoamingBandit: 0.10
+
+  wanderer_ring:
+    set: WANDERER
+    name: "§6旅人の護符"
+    slot: OFFHAND
+    material: COMPASS
+    atk: 3
+    def: 3
+    hp: 30
+    mp: 30
+    mythicmob-drops:
+      TreasureHunter: 0.20

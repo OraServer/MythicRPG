@@ -103,13 +103,32 @@ public class PlayerData {
 
     /** HP上限をアーティファクトボーナス込みで再適用 */
     public void applyMaxHp() {
-        // baseMaxHpは変更せず、ボーナスを別途計算して表示する
-        // (実装を簡潔にするためmaxHpフィールドに直接加算する)
-        // LevelManagerが設定したbaseを保持するため、ここでは再計算のみ
+        // アーティファクトボーナスはgetTotalMaxHp()で合算して参照する
+        // HPが新しい上限を超えていたらクランプ
+        double totalMax = getTotalMaxHp();
+        if (this.hp > totalMax) this.hp = totalMax;
     }
 
     /** MP上限をアーティファクトボーナス込みで再適用 */
-    public void applyMaxMp() { /* 同上 */ }
+    public void applyMaxMp() {
+        double totalMax = getTotalMaxMp();
+        if (this.mp > totalMax) this.mp = totalMax;
+    }
+
+    /**
+     * アーティファクトボーナス + 装備ボーナス込みの実効MaxHP。
+     * スコアボード・アクションバー・Bukkit属性設定で使う。
+     */
+    public double getTotalMaxHp() {
+        return maxHp + artifactBonusMaxHp + equipMaxHpBonus;
+    }
+
+    /**
+     * アーティファクトボーナス + 装備ボーナス込みの実効MaxMP。
+     */
+    public double getTotalMaxMp() {
+        return maxMp + artifactBonusMaxMp + equipMaxMpBonus;
+    }
 
     public java.util.Map<com.woxloi.mythicrpg.artifact.ArtifactType, Integer> getArtifactSetCounts() {
         return artifactSetCounts;

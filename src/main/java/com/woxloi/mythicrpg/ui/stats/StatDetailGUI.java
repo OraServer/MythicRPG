@@ -2,6 +2,7 @@ package com.woxloi.mythicrpg.ui.stats;
 
 import com.woxloi.mythicrpg.player.PlayerData;
 import com.woxloi.mythicrpg.player.PlayerDataManager;
+import com.woxloi.mythicrpg.ui.title.TitleDetailGUI;
 import org.bukkit.Bukkit;
 import org.bukkit.Material;
 import org.bukkit.entity.Player;

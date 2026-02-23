@@ -3,6 +3,7 @@ package com.woxloi.mythicrpg.core;
 import com.woxloi.mythicrpg.MythicRPG;
 import com.woxloi.mythicrpg.artifact.ArtifactListener;
 import com.woxloi.mythicrpg.artifact.ArtifactManager;
+import com.woxloi.mythicrpg.artifact.ArtifactRegistry;
 import com.woxloi.mythicrpg.artifact.ArtifactRepository;
 import com.woxloi.mythicrpg.buff.BuffListener;
 import com.woxloi.mythicrpg.buff.BuffPotionListener;
@@ -69,14 +70,19 @@ public class PluginBootstrap {
         // 1. DB接続 & テーブル初期化
         initDatabase();
 
+        // 1.5. Toggle設定読み込み
+        com.woxloi.mythicrpg.core.PluginToggleManager.init();
+
         // 2. スキルYAMLロード
         SkillLoader.load();
 
         // 3. 装備レジストリ初期化（items/*.yml + デフォルト装備）
         com.woxloi.mythicrpg.equipment.EquipmentRegistry.init(plugin.getDataFolder());
 
-        // 4. アーティファクト初期化
+        // 4. アーティファクト初期化（YAML読み込み → Registry → NBTキー）
         ArtifactManager.init();
+        ArtifactRegistry.load();
+        ArtifactRepository.createTable();
 
         // 4. ドロップテーブル初期化
         DropTableRegistry.load();

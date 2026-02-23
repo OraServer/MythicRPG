@@ -48,9 +48,9 @@ public class ScoreboardManager {
         EquipStats equip = EquipmentManager.getTotalStats(player);
         double totalAtk  = data.getAttack() + equip.attack;
         double displayHp = data.getHp();
-        double displayMaxHp = data.getMaxHp() + equip.maxHpBonus;
+        double displayMaxHp = data.getTotalMaxHp(); // アーティファクト+装備ボーナス込み
         double displayMp = data.getMp();
-        double displayMaxMp = data.getMaxMp() + equip.maxMpBonus;
+        double displayMaxMp = data.getTotalMaxMp(); // アーティファクト+装備ボーナス込み
 
         // 称号タグ
         String titleTag = TitleManager.getDisplayTag(player.getUniqueId());

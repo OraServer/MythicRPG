@@ -3,6 +3,11 @@ package com.woxloi.mythicrpg.equipment.drop;
 import com.woxloi.mythicrpg.MythicRPG;
 import com.woxloi.mythicrpg.equipment.model.RpgItem;
 import com.woxloi.mythicrpg.equipment.model.RpgItemSerializer;
+import com.woxloi.mythicrpg.artifact.ArtifactManager;
+import com.woxloi.mythicrpg.artifact.ArtifactPiece;
+import com.woxloi.mythicrpg.artifact.ArtifactRegistry;
+import com.woxloi.mythicrpg.artifact.ArtifactRepository;
+import org.bukkit.Material;
 import io.lumine.mythic.bukkit.events.MythicMobDeathEvent;
 import org.bukkit.ChatColor;
 import org.bukkit.entity.EntityType;
@@ -54,18 +59,76 @@ public class EquipDropListener implements Listener {
         Player killer = (Player) event.getKiller();
 
         String mobId = event.getMobType().getInternalName();
-        // MythicMob IDをキー名としてdroptableを引く（例: "BOSS_GOLEM" → "boss_standard"）
+
+        // 1. アーティファクトドロップ判定（artifacts.yml の mythicmob-drops）
+        rollArtifactDrops(killer, mobId);
+
+        // 2. 通常装備ドロップ（boss_standard テーブル等）
         String tableId = resolveMythicTable(mobId);
         if (tableId == null) return;
-
-        // バニラEntityDeathEventが同時に発火するため、ここはMythicMob専用テーブルのみ対象
         DropTable table = DropTableRegistry.get(tableId);
         if (table == null) return;
-
         List<RpgItem> drops = table.roll(RANDOM);
         for (RpgItem item : drops) {
             giveOrDrop(killer, item);
         }
+    }
+
+    /**
+     * artifacts.yml の mythicmob-drops に基づいてアーティファクトをドロップする。
+     */
+    private void rollArtifactDrops(Player killer, String mobId) {
+        List<ArtifactRegistry.MobDropEntry> entries = ArtifactRegistry.getDropsForMob(mobId);
+        if (entries.isEmpty()) return;
+
+        for (ArtifactRegistry.MobDropEntry entry : entries) {
+            if (RANDOM.nextDouble() < entry.chance()) {
+                ArtifactPiece piece = ArtifactRegistry.get(entry.pieceId());
+                if (piece == null) continue;
+
+                ItemStack item = buildArtifactItemStack(piece);
+                giveOrDropItem(killer, item, piece.getPieceName());
+
+                // 取得履歴をDBに記録
+                ArtifactRepository.logAcquired(killer.getUniqueId(), piece.getPieceId());
+                break; // 1Mob倒すたびに最大1個のアーティファクト
+            }
+        }
+    }
+
+    private ItemStack buildArtifactItemStack(ArtifactPiece piece) {
+        Material mat = switch (piece.getSlot()) {
+            case HELMET     -> Material.DIAMOND_HELMET;
+            case CHESTPLATE -> Material.DIAMOND_CHESTPLATE;
+            case LEGGINGS   -> Material.DIAMOND_LEGGINGS;
+            case BOOTS      -> Material.DIAMOND_BOOTS;
+            case WEAPON, MAIN_HAND -> Material.DIAMOND_SWORD;
+            case OFFHAND, OFF_HAND -> Material.SHIELD;
+            default         -> Material.DIAMOND;
+        };
+
+        ItemStack item = new ItemStack(mat);
+        var meta = item.getItemMeta();
+        meta.displayName(net.kyori.adventure.text.Component.text(piece.getPieceName()));
+
+        List<net.kyori.adventure.text.Component> lore = new java.util.ArrayList<>();
+        lore.add(net.kyori.adventure.text.Component.text("§5【アーティファクト】 " + piece.getSetType().getDisplayName()));
+        lore.add(net.kyori.adventure.text.Component.text("§7スロット: " + piece.getSlot().getDisplayName()));
+        lore.add(net.kyori.adventure.text.Component.text(""));
+        if (piece.getBonusAtk() > 0) lore.add(net.kyori.adventure.text.Component.text("§cATK §f+" + piece.getBonusAtk()));
+        if (piece.getBonusDef() > 0) lore.add(net.kyori.adventure.text.Component.text("§7DEF §f+" + piece.getBonusDef()));
+        if (piece.getBonusHp()  > 0) lore.add(net.kyori.adventure.text.Component.text("§aHP  §f+" + piece.getBonusHp()));
+        if (piece.getBonusMp()  > 0) lore.add(net.kyori.adventure.text.Component.text("§bMP  §f+" + piece.getBonusMp()));
+        meta.lore(lore);
+        item.setItemMeta(meta);
+
+        return ArtifactManager.tagItem(item, piece.getPieceId());
+    }
+
+    private void giveOrDropItem(Player player, ItemStack item, String displayName) {
+        Map<Integer, ItemStack> leftover = player.getInventory().addItem(item);
+        if (!leftover.isEmpty()) player.getWorld().dropItemNaturally(player.getLocation(), item);
+        MythicRPG.msg(player, ChatColor.LIGHT_PURPLE + "§l【アーティファクト入手】§r §f" + displayName + " §eをドロップしました！");
     }
 
     private void rollAndDrop(Player killer, String tableId, EntityDeathEvent event) {

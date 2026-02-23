@@ -1,6 +1,7 @@
 package com.woxloi.mythicrpg.ui;
 
 import com.woxloi.mythicrpg.MythicRPG;
+import com.woxloi.mythicrpg.core.PluginToggleManager;
 import org.bukkit.Bukkit;
 import org.bukkit.scheduler.BukkitRunnable;
 
@@ -10,6 +11,7 @@ public class ScoreboardTask extends BukkitRunnable {
 
     @Override
     public void run() {
+        if (!PluginToggleManager.isEnabled("scoreboard")) return;
         Bukkit.getOnlinePlayers().forEach(ScoreboardManager::update);
     }
 
