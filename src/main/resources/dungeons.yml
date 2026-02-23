@@ -1,0 +1,175 @@
+# =============================================================
+# MythicRPG ダンジョン定義ファイル
+# =============================================================
+# MythicMobsのMob IDを直接指定してダンジョンを構成できます。
+# floor-mobs: フロアごとにスポーンするMobリスト
+# boss-id: 最終フロアのボスMythicMob ID
+# spawn-offset: Mobをスポーンさせるプレイヤーからの相対座標リスト
+# =============================================================
+
+dungeons:
+
+  # ─────────────────────── 初心者 ───────────────────────
+  goblin_cave:
+    display: "§2⚔ ゴブリンの洞窟"
+    description: "ゴブリンたちが巣食う初心者向けの洞窟。\n報酬は低レアリティだが入門に最適。"
+    required-level: 1
+    max-players: 4
+    floor-count: 5
+    time-limit: 600        # 秒
+    reward-rarity: UNCOMMON
+    mob-element: EARTH     # ダンジョン内Mob全体のデフォルト属性
+
+    # フロアごとのMobスポーン設定
+    floor-mobs:
+      1: [GoblinWarrior, GoblinWarrior, GoblinArcher]
+      2: [GoblinWarrior, GoblinArcher, GoblinArcher]
+      3: [GoblinElite, GoblinWarrior, GoblinWarrior]
+      4: [GoblinElite, GoblinElite, GoblinArcher]
+      5: []   # ボスフロア（boss-idからスポーン）
+
+    boss-id: GoblinKing
+    boss-element: EARTH
+
+    # プレイヤー位置から各Mobをスポーンさせるオフセット
+    spawn-offsets:
+      - [3, 0, 0]
+      - [-3, 0, 0]
+      - [0, 0, 3]
+      - [0, 0, -3]
+      - [4, 0, 4]
+
+    exp-reward: 200
+    extra-rewards:
+      - type: ITEM_RARITY
+        rarity: UNCOMMON
+        count: 1
+
+  # ─────────────────────── 中級者 ───────────────────────
+  dark_forest:
+    display: "§5☽ 闇の森"
+    description: "呪われた森に潜む影の存在。\nダーク属性の敵が多く、光属性の装備が有効。"
+    required-level: 20
+    max-players: 4
+    floor-count: 8
+    time-limit: 900
+    reward-rarity: RARE
+    mob-element: DARK
+
+    floor-mobs:
+      1: [DarkWolf, DarkWolf]
+      2: [DarkWolf, ShadowSpirit]
+      3: [ShadowSpirit, ShadowSpirit, DarkWolf]
+      4: [ShadowElite, DarkWolf]
+      5: [ShadowElite, ShadowSpirit, ShadowSpirit]
+      6: [ShadowElite, ShadowElite]
+      7: [ForestDemonMinion, ForestDemonMinion, ShadowElite]
+      8: []
+
+    boss-id: ForestDemon
+    boss-element: DARK
+
+    spawn-offsets:
+      - [4, 0, 0]
+      - [-4, 0, 0]
+      - [0, 0, 4]
+      - [0, 0, -4]
+      - [5, 0, 5]
+      - [-5, 0, 5]
+
+    exp-reward: 800
+    extra-rewards:
+      - type: ITEM_RARITY
+        rarity: RARE
+        count: 2
+
+  # ─────────────────────── 上級者 ───────────────────────
+  dragon_lair:
+    display: "§4🐉 龍の巣窟"
+    description: "太古の竜が眠る最深部。\n最高難度のダンジョン。炎耐性と高い防御力が必須。"
+    required-level: 50
+    max-players: 6
+    floor-count: 10
+    time-limit: 1200
+    reward-rarity: EPIC
+    mob-element: FIRE
+
+    floor-mobs:
+      1: [DragonHatchling, DragonHatchling]
+      2: [DragonHatchling, DragonGuard]
+      3: [DragonGuard, DragonGuard]
+      4: [DragonGuard, DragonHatchling, DragonHatchling]
+      5: [DragonElite, DragonGuard]
+      6: [DragonElite, DragonElite]
+      7: [DragonElite, DragonGuard, DragonHatchling]
+      8: [DragonElite, DragonElite, DragonElite]
+      9: [AncientDragonMinion, AncientDragonMinion]
+      10: []
+
+    boss-id: AncientDragon
+    boss-element: FIRE
+
+    spawn-offsets:
+      - [5, 0, 0]
+      - [-5, 0, 0]
+      - [0, 0, 5]
+      - [0, 0, -5]
+      - [6, 0, 6]
+      - [-6, 0, 6]
+      - [6, 0, -6]
+
+    exp-reward: 3000
+    extra-rewards:
+      - type: ITEM_RARITY
+        rarity: EPIC
+        count: 2
+      - type: ARTIFACT_SET
+        set: DRAGON_SLAYER
+        chance: 0.30
+
+  # ─────────────────────── 伝説 ───────────────────────
+  ancient_ruins:
+    display: "§5👑 古代王の遺跡"
+    description: "失われた古代王国の遺跡。\n光と闇の属性が混在する最終コンテンツ。"
+    required-level: 70
+    max-players: 6
+    floor-count: 12
+    time-limit: 1500
+    reward-rarity: LEGENDARY
+    mob-element: NONE
+
+    floor-mobs:
+      1: [AncientGuard, AncientGuard]
+      2: [AncientGuard, AncientArcher]
+      3: [AncientMage, AncientGuard]
+      4: [AncientElite, AncientGuard]
+      5: [AncientElite, AncientMage]
+      6: [AncientElite, AncientElite]
+      7: [LegendaryKnight, AncientElite]
+      8: [LegendaryKnight, LegendaryKnight]
+      9: [LegendaryMage, LegendaryKnight]
+      10: [LegendaryMage, LegendaryMage, LegendaryKnight]
+      11: [AncientKingGuard, AncientKingGuard, LegendaryKnight]
+      12: []
+
+    boss-id: AncientKingBoss
+    boss-element: LIGHT
+
+    spawn-offsets:
+      - [5, 0, 0]
+      - [-5, 0, 0]
+      - [0, 0, 5]
+      - [0, 0, -5]
+      - [7, 0, 7]
+      - [-7, 0, 7]
+      - [7, 0, -7]
+      - [-7, 0, -7]
+
+    exp-reward: 8000
+    extra-rewards:
+      - type: ITEM_RARITY
+        rarity: LEGENDARY
+        count: 2
+      - type: ARTIFACT_SET
+        set: ANCIENT_KING
+        chance: 0.50

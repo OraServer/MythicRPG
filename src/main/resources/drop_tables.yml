@@ -1,0 +1,270 @@
+# =============================================================
+# MythicRPG ドロップテーブル定義ファイル
+# =============================================================
+# tables: テーブルID → 設定
+#   drop-chance: このテーブルが発動する確率 (0.0〜1.0)
+#   mob-element: このMobの属性 (スポーン時にエンティティへ付与)
+#   entries: 各エントリのweight比率でランダム選択
+#     rarity: ランダムレアリティ指定
+#     item-id: 特定アイテムID指定
+#     artifact-piece: アーティファクトピースID指定
+#
+# mob-table-map: MythicMob内部名 → テーブルID のマッピング
+# =============================================================
+
+# ─── MythicMobごとのテーブルマッピング ───────────────────────
+# 左: MythicMobs内部名, 右: 使用するテーブルID
+mob-table-map:
+  # ゴブリン系
+  GoblinWarrior: goblin_common
+  GoblinArcher:  goblin_common
+  GoblinElite:   goblin_elite
+  GoblinKing:    goblin_boss
+
+  # ダーク系
+  DarkWolf:      dark_common
+  ShadowSpirit:  dark_common
+  ShadowElite:   dark_elite
+  ForestDemonMinion: dark_elite
+  ForestDemon:   dark_boss
+
+  # ドラゴン系
+  DragonHatchling: dragon_common
+  DragonGuard:     dragon_common
+  DragonElite:     dragon_elite
+  AncientDragonMinion: dragon_elite
+  AncientDragon:   dragon_boss
+
+  # 古代系
+  AncientGuard:    ancient_common
+  AncientArcher:   ancient_common
+  AncientMage:     ancient_common
+  AncientElite:    ancient_elite
+  LegendaryKnight: ancient_elite
+  LegendaryMage:   ancient_elite
+  AncientKingGuard: ancient_elite
+  AncientKingBoss:  ancient_boss
+
+  # バニラ系
+  ZOMBIE:     vanilla_basic
+  SKELETON:   vanilla_basic
+  SPIDER:     vanilla_basic
+  CAVE_SPIDER: vanilla_basic
+  CREEPER:    vanilla_basic
+  ENDERMAN:   vanilla_mid
+  BLAZE:      vanilla_mid
+
+# ─── Mob属性マッピング（スポーン時に自動付与） ────────────────
+# MythicMob内部名 → 属性名（ElementTypeと一致させること）
+mob-element-map:
+  GoblinWarrior: EARTH
+  GoblinArcher:  EARTH
+  GoblinElite:   EARTH
+  GoblinKing:    EARTH
+  DarkWolf:      DARK
+  ShadowSpirit:  DARK
+  ShadowElite:   DARK
+  ForestDemonMinion: DARK
+  ForestDemon:   DARK
+  DragonHatchling: FIRE
+  DragonGuard:   FIRE
+  DragonElite:   FIRE
+  AncientDragonMinion: FIRE
+  AncientDragon: FIRE
+  AncientGuard:  LIGHT
+  AncientArcher: LIGHT
+  AncientMage:   DARK
+  AncientElite:  LIGHT
+  LegendaryKnight: LIGHT
+  LegendaryMage:   DARK
+  AncientKingGuard: LIGHT
+  AncientKingBoss:  LIGHT
+  WolfPup:   NONE
+  ForestFox: WIND
+  StoneGolem: EARTH
+  IronBoar:  EARTH
+  FireSpirit: FIRE
+  FrostWisp: WATER
+  WindHawk:  WIND
+  ShadowCat: DARK
+  AncientDragonHatchling: FIRE
+
+# ─── テーブル定義 ─────────────────────────────────────────────
+tables:
+
+  # ━━━━ バニラMob ━━━━
+  vanilla_basic:
+    drop-chance: 0.15
+    entries:
+      common:
+        weight: 75.0
+        rarity: COMMON
+      uncommon:
+        weight: 22.0
+        rarity: UNCOMMON
+      rare:
+        weight: 3.0
+        rarity: RARE
+
+  vanilla_mid:
+    drop-chance: 0.20
+    entries:
+      uncommon:
+        weight: 60.0
+        rarity: UNCOMMON
+      rare:
+        weight: 35.0
+        rarity: RARE
+      epic:
+        weight: 5.0
+        rarity: EPIC
+
+  # ━━━━ ゴブリン系 ━━━━
+  goblin_common:
+    drop-chance: 0.18
+    entries:
+      common:
+        weight: 70.0
+        rarity: COMMON
+      uncommon:
+        weight: 28.0
+        rarity: UNCOMMON
+      rare:
+        weight: 2.0
+        rarity: RARE
+
+  goblin_elite:
+    drop-chance: 0.35
+    entries:
+      uncommon:
+        weight: 55.0
+        rarity: UNCOMMON
+      rare:
+        weight: 40.0
+        rarity: RARE
+      epic:
+        weight: 5.0
+        rarity: EPIC
+
+  goblin_boss:
+    drop-chance: 1.0
+    entries:
+      rare:
+        weight: 50.0
+        rarity: RARE
+      epic:
+        weight: 40.0
+        rarity: EPIC
+      legendary:
+        weight: 10.0
+        rarity: LEGENDARY
+
+  # ━━━━ ダーク系 ━━━━
+  dark_common:
+    drop-chance: 0.20
+    entries:
+      uncommon:
+        weight: 65.0
+        rarity: UNCOMMON
+      rare:
+        weight: 30.0
+        rarity: RARE
+      epic:
+        weight: 5.0
+        rarity: EPIC
+
+  dark_elite:
+    drop-chance: 0.45
+    entries:
+      rare:
+        weight: 60.0
+        rarity: RARE
+      epic:
+        weight: 35.0
+        rarity: EPIC
+      legendary:
+        weight: 5.0
+        rarity: LEGENDARY
+
+  dark_boss:
+    drop-chance: 1.0
+    entries:
+      epic:
+        weight: 60.0
+        rarity: EPIC
+      legendary:
+        weight: 40.0
+        rarity: LEGENDARY
+
+  # ━━━━ ドラゴン系 ━━━━
+  dragon_common:
+    drop-chance: 0.25
+    entries:
+      rare:
+        weight: 55.0
+        rarity: RARE
+      epic:
+        weight: 40.0
+        rarity: EPIC
+      legendary:
+        weight: 5.0
+        rarity: LEGENDARY
+
+  dragon_elite:
+    drop-chance: 0.55
+    entries:
+      epic:
+        weight: 65.0
+        rarity: EPIC
+      legendary:
+        weight: 35.0
+        rarity: LEGENDARY
+
+  dragon_boss:
+    drop-chance: 1.0
+    entries:
+      epic:
+        weight: 40.0
+        rarity: EPIC
+      legendary:
+        weight: 60.0
+        rarity: LEGENDARY
+
+  # ━━━━ 古代系 ━━━━
+  ancient_common:
+    drop-chance: 0.30
+    entries:
+      epic:
+        weight: 70.0
+        rarity: EPIC
+      legendary:
+        weight: 30.0
+        rarity: LEGENDARY
+
+  ancient_elite:
+    drop-chance: 0.65
+    entries:
+      epic:
+        weight: 45.0
+        rarity: EPIC
+      legendary:
+        weight: 55.0
+        rarity: LEGENDARY
+
+  ancient_boss:
+    drop-chance: 1.0
+    entries:
+      legendary:
+        weight: 100.0
+        rarity: LEGENDARY
+
+  # ━━━━ 汎用ボス ━━━━
+  boss_standard:
+    drop-chance: 1.0
+    entries:
+      epic:
+        weight: 60.0
+        rarity: EPIC
+      legendary:
+        weight: 40.0
+        rarity: LEGENDARY

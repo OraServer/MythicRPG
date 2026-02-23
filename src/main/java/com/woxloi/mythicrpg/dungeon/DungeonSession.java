@@ -1,8 +1,10 @@
 package com.woxloi.mythicrpg.dungeon;
 
+import org.bukkit.Bukkit;
 import org.bukkit.entity.Player;
 
 import java.util.Collections;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 import java.util.UUID;
@@ -24,6 +26,9 @@ public class DungeonSession {
     private State state;
     private int currentFloor;
     private int remainingSeconds;
+
+    /** 現在フロアで生存中のMob UUID セット（全滅判定に使用） */
+    private Set<UUID> activeMobUuids = new HashSet<>();
 
     public DungeonSession(DungeonDefinition definition, List<Player> players) {
         this.sessionId      = UUID.randomUUID().toString().substring(0, 8);
@@ -91,5 +96,25 @@ public class DungeonSession {
     /** 進捗表示 */
     public String getProgressDisplay() {
         return "§7[§e" + currentFloor + "§7/§e" + definition.getFloorCount() + "§7]";
+    }
+
+    // ─── アクティブMob管理 ──────────────────────────────
+    public void setActiveMobUuids(Set<UUID> uuids) { this.activeMobUuids = new HashSet<>(uuids); }
+    public Set<UUID> getActiveMobUuids() { return activeMobUuids; }
+
+    /**
+     * Mobが死亡したことを通知する。全滅したらtrue。
+     */
+    public boolean onMobDied(UUID uuid) {
+        activeMobUuids.remove(uuid);
+        return activeMobUuids.isEmpty();
+    }
+
+    /** 全参加者にメッセージを送る */
+    public void broadcastToParticipants(String msg) {
+        for (UUID uuid : participants) {
+            Player p = Bukkit.getPlayer(uuid);
+            if (p != null) p.sendMessage(com.woxloi.mythicrpg.MythicRPG.PREFIX + msg);
+        }
     }
 }

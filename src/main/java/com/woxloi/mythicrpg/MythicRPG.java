@@ -1,6 +1,7 @@
 package com.woxloi.mythicrpg;
 
 import com.woxloi.mythicrpg.core.PluginBootstrap;
+import org.bukkit.NamespacedKey;
 import org.bukkit.command.CommandSender;
 import org.bukkit.entity.Player;
 import org.bukkit.plugin.java.JavaPlugin;
@@ -33,6 +34,11 @@ public class MythicRPG extends JavaPlugin {
 
     public static MythicRPG getInstance() {
         return instance;
+    }
+
+    /** NamespacedKey を生成するショートハンド */
+    public NamespacedKey key(String value) {
+        return new NamespacedKey(this, value);
     }
 
     // =====================

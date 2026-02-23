@@ -51,6 +51,9 @@ import com.woxloi.mythicrpg.ui.ActionBarTask;
 import com.woxloi.mythicrpg.ui.ResourceRegenTask;
 import com.woxloi.mythicrpg.ui.ScoreboardTask;
 import com.woxloi.mythicrpg.ui.skill.SkillClickListener;
+import com.woxloi.mythicrpg.dungeon.DungeonManager;
+import com.woxloi.mythicrpg.element.MobElementSpawnListener;
+import com.woxloi.mythicrpg.pet.PetManager;
 import org.bukkit.Bukkit;
 
 public class PluginBootstrap {
@@ -75,6 +78,10 @@ public class PluginBootstrap {
 
         // 2. スキルYAMLロード
         SkillLoader.load();
+
+        // 2.5. ダンジョン・ペット定義をYAMLから読み込む
+        DungeonManager.load();
+        PetManager.load();
 
         // 3. 装備レジストリ初期化（items/*.yml + デフォルト装備）
         com.woxloi.mythicrpg.equipment.EquipmentRegistry.init(plugin.getDataFolder());
@@ -144,6 +151,9 @@ public class PluginBootstrap {
     private void registerListeners() {
         // コア
         Bukkit.getPluginManager().registerEvents(new PlayerListener(), plugin);
+
+        // MythicMobスポーン時の属性自動付与
+        Bukkit.getPluginManager().registerEvents(new MobElementSpawnListener(), plugin);
         Bukkit.getPluginManager().registerEvents(new SkillClickListener(), plugin);
         Bukkit.getPluginManager().registerEvents(new JobListener(), plugin);
         Bukkit.getPluginManager().registerEvents(new WeaponSkillListener(), plugin);

@@ -20,35 +20,12 @@ public class PetManager {
     /** プレイヤーのペットデータ: ownerUUID → PetData */
     private static final Map<UUID, PetData> petDataMap = new ConcurrentHashMap<>();
 
-    /** 定義済みペット: id → PetDefinition */
-    private static final Map<String, PetDefinition> definitions = new LinkedHashMap<>();
+    /** 定義済みペット: id → PetDefinition (pets.yml からロード) */
+    private static Map<String, PetDefinition> definitions = new LinkedHashMap<>();
 
-    static {
-        loadDefaultPets();
-    }
-
-    private static void loadDefaultPets() {
-        definitions.put("wolf_pup", new PetDefinition(
-            "wolf_pup", "§fオオカミの子", "忠実な戦闘補助型ペット",
-            "WolfPup", 1,
-            java.util.EnumSet.allOf(com.woxloi.mythicrpg.job.JobType.class),
-            30, List.of("bite", "howl"),
-            8.0, 3.0, 1.5
-        ));
-        definitions.put("fire_spirit", new PetDefinition(
-            "fire_spirit", "§c炎霊", "魔法使いと相性の良い炎属性ペット",
-            "FireSpirit", 20,
-            java.util.EnumSet.of(com.woxloi.mythicrpg.job.JobType.MAGE),
-            30, List.of("fireball", "flare"),
-            5.0, 5.0, 0.5
-        ));
-        definitions.put("stone_golem", new PetDefinition(
-            "stone_golem", "§8石像", "高耐久の守護型ペット",
-            "StoneGolem", 30,
-            java.util.EnumSet.of(com.woxloi.mythicrpg.job.JobType.WARRIOR),
-            20, List.of("taunt", "shield_bash"),
-            20.0, 1.0, 5.0
-        ));
+    /** pets.yml を読み込む。PluginBootstrap.enable() から呼ぶ。 */
+    public static void load() {
+        definitions = PetLoader.load();
     }
 
     private PetManager() {}

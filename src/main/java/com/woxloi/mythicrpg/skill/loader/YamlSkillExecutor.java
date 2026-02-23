@@ -10,7 +10,8 @@ import org.bukkit.Sound;
 import org.bukkit.entity.LivingEntity;
 import org.bukkit.entity.Player;
 import org.bukkit.entity.SmallFireball;
-import org.bukkit.util.Vector; /**
+import org.bukkit.util.Vector;
+/**
  * YAMLで定義されたスキルを実行するクラス。
  * effect フィールドに応じて処理を分岐する。
  */

@@ -1,12 +1,13 @@
 package com.woxloi.mythicrpg.dungeon;
 
+import com.woxloi.mythicrpg.element.ElementType;
 import com.woxloi.mythicrpg.equipment.model.EquipRarity;
 
 import java.util.List;
+import java.util.Map;
 
 /**
- * ダンジョンの定義データ（YAMLまたはハードコードで登録）。
- * DungeonManagerで保持され、プレイヤーへのGUI表示・入場チェックに使われる。
+ * ダンジョンの定義データ。dungeons.yml から DungeonLoader が生成する。
  */
 public class DungeonDefinition {
 
@@ -18,13 +19,24 @@ public class DungeonDefinition {
     private final int floorCount;
     private final int timeLimitSeconds;
     private final EquipRarity rewardRarity;
-    private final List<String> mobIds;     // MythicMobs ID リスト
-    private final String bossId;           // 最終ボスのMythicMobs ID
+
+    // フロアごとのMythicMob IDリスト (floor番号 → Mob IDリスト)
+    private final Map<Integer, List<String>> floorMobs;
+    // 最終ボスのMythicMob ID
+    private final String bossId;
+    // ダンジョン内Mobのデフォルト属性
+    private final ElementType mobElement;
+    private final ElementType bossElement;
+    // スポーンオフセット (プレイヤー座標からの相対値)
+    private final List<int[]> spawnOffsets;
+    private final int expReward;
 
     public DungeonDefinition(String id, String displayName, String description,
                               int requiredLevel, int maxPlayers, int floorCount,
                               int timeLimitSeconds, EquipRarity rewardRarity,
-                              List<String> mobIds, String bossId) {
+                              Map<Integer, List<String>> floorMobs, String bossId,
+                              ElementType mobElement, ElementType bossElement,
+                              List<int[]> spawnOffsets, int expReward) {
         this.id               = id;
         this.displayName      = displayName;
         this.description      = description;
@@ -33,26 +45,39 @@ public class DungeonDefinition {
         this.floorCount       = floorCount;
         this.timeLimitSeconds = timeLimitSeconds;
         this.rewardRarity     = rewardRarity;
-        this.mobIds           = mobIds;
+        this.floorMobs        = floorMobs;
         this.bossId           = bossId;
+        this.mobElement       = mobElement;
+        this.bossElement      = bossElement;
+        this.spawnOffsets     = spawnOffsets;
+        this.expReward        = expReward;
     }
 
-    public String getId()              { return id; }
-    public String getDisplayName()     { return displayName; }
-    public String getDescription()     { return description; }
-    public int getRequiredLevel()      { return requiredLevel; }
-    public int getMaxPlayers()         { return maxPlayers; }
-    public int getFloorCount()         { return floorCount; }
-    public int getTimeLimitSeconds()   { return timeLimitSeconds; }
-    public EquipRarity getRewardRarity() { return rewardRarity; }
-    public List<String> getMobIds()    { return mobIds; }
-    public String getBossId()          { return bossId; }
+    public String getId()                    { return id; }
+    public String getDisplayName()           { return displayName; }
+    public String getDescription()           { return description; }
+    public int getRequiredLevel()            { return requiredLevel; }
+    public int getMaxPlayers()               { return maxPlayers; }
+    public int getFloorCount()               { return floorCount; }
+    public int getTimeLimitSeconds()         { return timeLimitSeconds; }
+    public EquipRarity getRewardRarity()     { return rewardRarity; }
+    public Map<Integer, List<String>> getFloorMobs() { return floorMobs; }
+    public String getBossId()                { return bossId; }
+    public ElementType getMobElement()       { return mobElement; }
+    public ElementType getBossElement()      { return bossElement; }
+    public List<int[]> getSpawnOffsets()     { return spawnOffsets; }
+    public int getExpReward()                { return expReward; }
 
-    /** GUI lore用のテキストを生成 */
+    /** フロア番号に対応するMob IDリストを返す（未定義は空リスト） */
+    public List<String> getMobsForFloor(int floor) {
+        return floorMobs.getOrDefault(floor, List.of());
+    }
+
+    /** GUI lore用テキスト */
     public List<String> buildLore(int playerLevel) {
         boolean canEnter = playerLevel >= requiredLevel;
         return List.of(
-            "§7" + description,
+            "§7" + description.replace("\\n", "\n§7"),
             "",
             "§8--- 情報 ---",
             "§7必要Lv: " + (canEnter ? "§a" : "§c") + requiredLevel,
@@ -60,6 +85,7 @@ public class DungeonDefinition {
             "§7フロア数: §f" + floorCount + "層",
             "§7制限時間: §f" + (timeLimitSeconds / 60) + "分",
             "§7報酬レアリティ: " + rewardRarity.color + rewardRarity.displayName,
+            "§7Mob属性: " + mobElement.getTagged(),
             "",
             canEnter ? "§aクリックで入場" : "§cレベルが足りません"
         );

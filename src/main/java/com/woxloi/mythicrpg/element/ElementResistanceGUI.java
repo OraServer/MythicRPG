@@ -1,5 +1,6 @@
 package com.woxloi.mythicrpg.element;
 
+import com.woxloi.mythicrpg.dungeon.DungeonGUI;
 import org.bukkit.Bukkit;
 import org.bukkit.Material;
 import org.bukkit.entity.Player;
@@ -10,6 +11,7 @@ import org.bukkit.inventory.Inventory;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.meta.ItemMeta;
 
+import javax.swing.text.Element;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;

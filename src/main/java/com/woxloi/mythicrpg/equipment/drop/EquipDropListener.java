@@ -151,7 +151,10 @@ public class EquipDropListener implements Listener {
     }
 
     private String resolveMythicTable(String mobId) {
-        // ボスMobは大文字の接頭辞BOSS_を使う規則とする
+        // drop_tables.yml の mob-table-map から引く
+        String tableId = DropTableRegistry.getTableIdForMob(mobId);
+        if (tableId != null) return tableId;
+        // フォールバック: BOSS_ プレフィックス
         if (mobId.toUpperCase().startsWith("BOSS")) return "boss_standard";
         return null;
     }

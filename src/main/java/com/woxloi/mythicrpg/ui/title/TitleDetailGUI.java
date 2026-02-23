@@ -1,6 +1,5 @@
 package com.woxloi.mythicrpg.ui.title;
 
-import com.woxloi.mythicrpg.dungeon.DungeonGUI;
 import com.woxloi.mythicrpg.title.TitleDefinition;
 import com.woxloi.mythicrpg.title.TitleManager;
 import org.bukkit.Bukkit;

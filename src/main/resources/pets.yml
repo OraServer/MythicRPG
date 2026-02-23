@@ -1,0 +1,181 @@
+# =============================================================
+# MythicRPG ペット定義ファイル
+# =============================================================
+# mythicmob-id: MythicMobsで定義されたMob IDを使って召喚
+# allowed-jobs: ALL または ジョブ名リスト (WARRIOR/MAGE/ARCHER)
+# skills: ペット固有スキルID (将来のスキルシステム拡張で使用)
+# element: ペットの属性 (攻撃時に属性ダメージが乗る)
+# =============================================================
+
+pets:
+
+  # ─────────────────── 全ジョブ共通 ───────────────────
+  wolf_pup:
+    display: "§fオオカミの子"
+    description: "忠実な戦闘補助型ペット。どのジョブにも馴染む。"
+    mythicmob-id: WolfPup
+    required-level: 1
+    allowed-jobs: ALL
+    max-level: 30
+    element: NONE
+    skills:
+      - bite        # 噛みつき攻撃 (単体ダメージ)
+      - howl        # 遠吠え (周囲Mobの攻撃力-10%)
+    # レベルごとのステータス上昇
+    hp-per-level: 8.0
+    attack-per-level: 3.0
+    defense-per-level: 1.5
+    # アクティブスキル発動条件
+    skill-trigger:
+      bite: { cooldown: 8, mp-cost: 0, range: 3.0 }
+      howl: { cooldown: 30, mp-cost: 10, range: 8.0 }
+
+  forest_fox:
+    display: "§6森の狐"
+    description: "素早い動きで敵を撹乱する。アーチャーと相性が良い。"
+    mythicmob-id: ForestFox
+    required-level: 10
+    allowed-jobs: ALL
+    max-level: 30
+    element: WIND
+    skills:
+      - quick_strike  # 素早い攻撃 (2連続ダメージ)
+      - evasion       # 回避バフ (プレイヤーに付与)
+    hp-per-level: 5.0
+    attack-per-level: 4.0
+    defense-per-level: 1.0
+    skill-trigger:
+      quick_strike: { cooldown: 6, mp-cost: 0, range: 3.0 }
+      evasion: { cooldown: 25, mp-cost: 15, range: 1.0 }
+
+  # ─────────────────── ウォリアー向け ───────────────────
+  stone_golem:
+    display: "§8石像ゴーレム"
+    description: "高耐久の守護型ペット。ウォリアーの盾役として活躍。"
+    mythicmob-id: StoneGolem
+    required-level: 30
+    allowed-jobs: [WARRIOR]
+    max-level: 50
+    element: EARTH
+    skills:
+      - taunt       # 挑発 (敵のターゲットをペットに向ける)
+      - shield_bash # シールドバッシュ (スタン付き攻撃)
+    hp-per-level: 20.0
+    attack-per-level: 1.0
+    defense-per-level: 5.0
+    skill-trigger:
+      taunt: { cooldown: 15, mp-cost: 0, range: 6.0 }
+      shield_bash: { cooldown: 12, mp-cost: 0, range: 2.5 }
+
+  iron_boar:
+    display: "§7鉄の猪"
+    description: "突進攻撃が強力な攻撃型ペット。ウォリアー向け。"
+    mythicmob-id: IronBoar
+    required-level: 20
+    allowed-jobs: [WARRIOR]
+    max-level: 40
+    element: EARTH
+    skills:
+      - charge      # 突進 (直線ダメージ)
+      - stomp       # 踏みつけ (範囲ダメージ)
+    hp-per-level: 15.0
+    attack-per-level: 4.0
+    defense-per-level: 3.0
+    skill-trigger:
+      charge: { cooldown: 10, mp-cost: 0, range: 8.0 }
+      stomp: { cooldown: 20, mp-cost: 0, range: 4.0 }
+
+  # ─────────────────── メイジ向け ───────────────────
+  fire_spirit:
+    display: "§c炎の精霊"
+    description: "炎魔法を操るペット。メイジの火力を補強する。"
+    mythicmob-id: FireSpirit
+    required-level: 20
+    allowed-jobs: [MAGE]
+    max-level: 50
+    element: FIRE
+    skills:
+      - fireball    # ファイアボール (単体遠距離)
+      - flare       # フレア (範囲炎ダメージ)
+    hp-per-level: 5.0
+    attack-per-level: 5.0
+    defense-per-level: 0.5
+    skill-trigger:
+      fireball: { cooldown: 5, mp-cost: 0, range: 10.0 }
+      flare: { cooldown: 20, mp-cost: 0, range: 5.0 }
+
+  frost_wisp:
+    display: "§b氷の霊"
+    description: "氷魔法で敵を凍結させる支援型ペット。メイジ向け。"
+    mythicmob-id: FrostWisp
+    required-level: 25
+    allowed-jobs: [MAGE]
+    max-level: 50
+    element: WATER
+    skills:
+      - ice_bolt    # 氷の矢 (凍結付与)
+      - blizzard    # ブリザード (範囲氷ダメージ+減速)
+    hp-per-level: 4.0
+    attack-per-level: 4.5
+    defense-per-level: 0.8
+    skill-trigger:
+      ice_bolt: { cooldown: 6, mp-cost: 0, range: 8.0 }
+      blizzard: { cooldown: 25, mp-cost: 0, range: 6.0 }
+
+  # ─────────────────── アーチャー向け ───────────────────
+  wind_hawk:
+    display: "§a風の鷹"
+    description: "高速移動で敵を翻弄する。アーチャーのサポート特化。"
+    mythicmob-id: WindHawk
+    required-level: 20
+    allowed-jobs: [ARCHER]
+    max-level: 50
+    element: WIND
+    skills:
+      - dive_bomb   # 急降下 (単体大ダメージ)
+      - scout       # 偵察 (周囲Mobの位置表示)
+    hp-per-level: 6.0
+    attack-per-level: 5.0
+    defense-per-level: 0.8
+    skill-trigger:
+      dive_bomb: { cooldown: 12, mp-cost: 0, range: 12.0 }
+      scout: { cooldown: 30, mp-cost: 0, range: 20.0 }
+
+  shadow_cat:
+    display: "§8影の猫"
+    description: "クリティカルを補助する暗殺者型ペット。アーチャー向け。"
+    mythicmob-id: ShadowCat
+    required-level: 35
+    allowed-jobs: [ARCHER]
+    max-level: 50
+    element: DARK
+    skills:
+      - claw_slash  # 爪で引っ掻く (出血付与)
+      - shadow_mark # 影マーク (対象への被ダメージ+20%)
+    hp-per-level: 7.0
+    attack-per-level: 5.5
+    defense-per-level: 1.0
+    skill-trigger:
+      claw_slash: { cooldown: 5, mp-cost: 0, range: 3.0 }
+      shadow_mark: { cooldown: 20, mp-cost: 0, range: 6.0 }
+
+  # ─────────────────── レア・伝説 ───────────────────
+  ancient_dragon_hatchling:
+    display: "§4古竜の幼体"
+    description: "古代竜の幼体。全ジョブで使えるが、召喚に高レベルが必要。"
+    mythicmob-id: AncientDragonHatchling
+    required-level: 60
+    allowed-jobs: ALL
+    max-level: 100
+    element: FIRE
+    skills:
+      - dragon_breath  # 炎ブレス (扇形ダメージ)
+      - dragon_roar    # 咆哮 (全周囲ノックバック+ダメージ)
+      - ancient_flame  # 古代の炎 (長射程大ダメージ, 60秒CD)
+    hp-per-level: 25.0
+    attack-per-level: 8.0
+    defense-per-level: 4.0
+    skill-trigger:
+      dragon_breath: { cooldown: 8, mp-cost: 0, range: 6.0 }
+      dragon_roar: { cooldown: 20, mp-cost: 0, range: 8.0 }
+      ancient_flame: { cooldown: 60, mp-cost: 0, range: 15.0 }

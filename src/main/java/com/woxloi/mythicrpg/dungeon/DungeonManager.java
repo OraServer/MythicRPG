@@ -18,15 +18,15 @@ import java.util.concurrent.ConcurrentHashMap;
 
 /**
  * ダンジョンの全セッションを管理する。
- * - 入場判定・セッション生成
- * - フロア進行
- * - タイマータスク
- * - 報酬配布
+ *
+ * YAMLロードは DungeonLoader が担当。
+ * MythicMobsスポーンは DungeonMobSpawner が担当。
+ * Mob全滅クリア判定は DungeonListener (MythicMobDeathEvent) から通知される。
  */
 public class DungeonManager {
 
-    /** 定義済みダンジョン一覧 */
-    private static final Map<String, DungeonDefinition> definitions = new LinkedHashMap<>();
+    /** 定義済みダンジョン一覧 (dungeons.yml から読み込み) */
+    private static Map<String, DungeonDefinition> definitions = new LinkedHashMap<>();
 
     /** アクティブセッション: sessionId → session */
     private static final Map<String, DungeonSession> sessions = new ConcurrentHashMap<>();
@@ -37,39 +37,14 @@ public class DungeonManager {
     /** タイマータスク: sessionId → task */
     private static final Map<String, BukkitTask> timers = new ConcurrentHashMap<>();
 
-    static {
-        loadDefaultDungeons();
-    }
-
-    private static void loadDefaultDungeons() {
-        definitions.put("goblin_cave", new DungeonDefinition(
-            "goblin_cave", "§2ゴブリンの洞窟", "初心者向けの洞窟ダンジョン",
-            1, 4, 5, 600,
-            com.woxloi.mythicrpg.equipment.model.EquipRarity.UNCOMMON,
-            List.of("GoblinWarrior", "GoblinArcher"), "GoblinKing"
-        ));
-        definitions.put("dark_forest", new DungeonDefinition(
-            "dark_forest", "§5闇の森", "中級者向けの呪われた森",
-            20, 4, 8, 900,
-            com.woxloi.mythicrpg.equipment.model.EquipRarity.RARE,
-            List.of("DarkWolf", "ShadowSpirit"), "ForestDemon"
-        ));
-        definitions.put("dragon_lair", new DungeonDefinition(
-            "dragon_lair", "§4龍の巣窟", "上級者向けのドラゴンダンジョン",
-            50, 6, 10, 1200,
-            com.woxloi.mythicrpg.equipment.model.EquipRarity.EPIC,
-            List.of("DragonHatchling", "DragonGuard"), "AncientDragon"
-        ));
-    }
-
     private DungeonManager() {}
 
-    // ─── 入場 ────────────────────────────────────
+    // ─── 初期化 ─────────────────────────────────────────
+    public static void load() {
+        definitions = DungeonLoader.load();
+    }
 
-    /**
-     * プレイヤーをダンジョンに入場させる。
-     * @return null=成功, String=失敗理由
-     */
+    // ─── 入場 ────────────────────────────────────────────
     public static String enter(Player player, String dungeonId) {
         DungeonDefinition def = definitions.get(dungeonId);
         if (def == null) return "存在しないダンジョンです";
@@ -78,52 +53,84 @@ public class DungeonManager {
         if (data == null) return "プレイヤーデータが読み込まれていません";
         if (data.getLevel() < def.getRequiredLevel())
             return "必要Lv " + def.getRequiredLevel() + " に達していません（現在Lv" + data.getLevel() + "）";
-
         if (playerSessionMap.containsKey(player.getUniqueId()))
             return "すでにダンジョンに参加中です";
 
-        // 新規セッション作成
         DungeonSession session = new DungeonSession(def, List.of(player));
-        session.advanceFloor(); // 1Fからスタート
         sessions.put(session.getSessionId(), session);
         playerSessionMap.put(player.getUniqueId(), session.getSessionId());
 
-        startTimer(session);
-
         MythicRPG.playerPrefixMsg(player, "§a" + def.getDisplayName() + " §7に入場しました！");
-        MythicRPG.playerPrefixMsg(player, "§71F / " + def.getFloorCount() + "F  §7制限時間: §e"
-                + (def.getTimeLimitSeconds() / 60) + "分");
+        MythicRPG.playerPrefixMsg(player, "§71F / " + def.getFloorCount()
+                + "F  §7制限時間: §e" + (def.getTimeLimitSeconds() / 60) + "分");
         player.playSound(player.getLocation(), Sound.AMBIENT_CAVE, 0.8f, 0.8f);
+
+        startTimer(session);
+        spawnCurrentFloor(session, player);
         return null;
     }
 
-    // ─── フロア進行 ──────────────────────────────
+    // ─── Mob全滅クリア（DungeonListenerから呼ぶ） ────────
+    /**
+     * Mob死亡時に呼ばれる。全滅したらフロア進行。
+     * @param sessionId 死んだMobが持つセッションID
+     * @param mobUuid   死んだMobのUUID
+     */
+    public static void onDungeonMobDied(String sessionId, java.util.UUID mobUuid) {
+        DungeonSession session = sessions.get(sessionId);
+        if (session == null || session.isFinished()) return;
 
-    /** フロアクリアを通知し次の階へ進める */
-    public static void completeFloor(Player player) {
-        DungeonSession session = getSession(player);
-        if (session == null) return;
+        boolean allDead = session.onMobDied(mobUuid);
+        if (!allDead) return;
 
+        // 全滅！
         if (session.getState() == DungeonSession.State.BOSS_FLOOR) {
             completeDungeon(session);
-            return;
-        }
+        } else {
+            // 次のフロアへ
+            session.broadcastToParticipants("§a§l✔ フロアクリア！ §7次の階へ…");
+            session.advanceFloor();
 
-        session.advanceFloor();
-        broadcastToSession(session, "§a§l" + session.getCurrentFloor() + "F クリア！ §7次のフロアへ…");
-        player.playSound(player.getLocation(), Sound.ENTITY_PLAYER_LEVELUP, 0.5f, 1.5f);
+            // 少し間を置いてスポーン
+            Bukkit.getScheduler().runTaskLater(MythicRPG.getInstance(), () -> {
+                Player representative = getRepresentativePlayer(session);
+                if (representative != null) spawnCurrentFloor(session, representative);
+            }, 40L); // 2秒後
+        }
     }
 
-    /** ダンジョンクリア処理 */
+    // ─── フロアスポーン ───────────────────────────────────
+    private static void spawnCurrentFloor(DungeonSession session, Player basePlayer) {
+        DungeonMobSpawner.spawnFloor(session, session.getCurrentFloor(), basePlayer.getLocation());
+
+        boolean isBoss = session.getActiveMobUuids().size() <= 1
+                && !session.getDefinition().getBossId().isBlank()
+                && session.getState() == DungeonSession.State.BOSS_FLOOR;
+
+        session.broadcastToParticipants(
+            session.getProgressDisplay() + " §7フロア開始！ §e" + session.getActiveMobUuids().size() + "体 §7出現");
+        if (isBoss) {
+            session.broadcastToParticipants("§c§l⚔ ボス戦開始！ §r§e" + session.getDefinition().getBossId());
+        }
+    }
+
+    private static Player getRepresentativePlayer(DungeonSession session) {
+        for (UUID uuid : session.getParticipants()) {
+            Player p = Bukkit.getPlayer(uuid);
+            if (p != null) return p;
+        }
+        return null;
+    }
+
+    // ─── ダンジョンクリア ─────────────────────────────────
     private static void completeDungeon(DungeonSession session) {
         session.complete();
         stopTimer(session.getSessionId());
 
-        broadcastToSession(session, "§6§l★ ダンジョンクリア！ ★");
+        session.broadcastToParticipants("§6§l★ ダンジョンクリア！ ★");
         long elapsed = (System.currentTimeMillis() - session.getStartTimeMs()) / 1000;
-        broadcastToSession(session, "§7クリア時間: §e" + elapsed / 60 + "分" + elapsed % 60 + "秒");
+        session.broadcastToParticipants("§7クリア時間: §e" + elapsed / 60 + "分" + elapsed % 60 + "秒");
 
-        // 報酬配布
         for (UUID uuid : session.getParticipants()) {
             Player p = Bukkit.getPlayer(uuid);
             if (p == null) continue;
@@ -133,12 +140,10 @@ public class DungeonManager {
         sessions.remove(session.getSessionId());
     }
 
-    // ─── 退場・失敗 ──────────────────────────────
-
+    // ─── 退場 ────────────────────────────────────────────
     public static void leave(Player player) {
         String sid = playerSessionMap.remove(player.getUniqueId());
         if (sid == null) return;
-
         DungeonSession session = sessions.get(sid);
         if (session != null) {
             session.removeParticipant(player.getUniqueId());
@@ -151,42 +156,29 @@ public class DungeonManager {
         MythicRPG.playerPrefixMsg(player, "§cダンジョンから退出しました");
     }
 
-    public static void onPlayerDeath(Player player) {
-        leave(player);
-    }
+    public static void onPlayerDeath(Player player) { leave(player); }
 
-    // ─── 報酬 ────────────────────────────────────
-
+    // ─── 報酬 ─────────────────────────────────────────────
     private static void giveReward(Player player, DungeonDefinition def) {
-        // ランダム装備をドロップ
         RpgItem reward = RandomItemGenerator.generate(def.getRewardRarity(), new Random());
         if (reward != null) {
             ItemStack is = RpgItemSerializer.toItemStack(reward);
             player.getInventory().addItem(is);
             MythicRPG.playerPrefixMsg(player, "§6報酬: " + reward.rarity.color + reward.displayName);
         }
-
-        // EXPボーナス
-        double expBonus = def.getFloorCount() * def.getRequiredLevel() * 5.0;
-        LevelManager.addExp(player, expBonus);
-        MythicRPG.playerPrefixMsg(player, "§a経験値 +" + (int)expBonus + " 獲得！");
-
+        LevelManager.addExp(player, def.getExpReward());
+        MythicRPG.playerPrefixMsg(player, "§a経験値 +" + def.getExpReward() + " 獲得！");
         player.playSound(player.getLocation(), Sound.ENTITY_PLAYER_LEVELUP, 1f, 1f);
     }
 
-    // ─── タイマー ────────────────────────────────
-
+    // ─── タイマー ─────────────────────────────────────────
     private static void startTimer(DungeonSession session) {
         BukkitTask task = Bukkit.getScheduler().runTaskTimer(MythicRPG.getInstance(), () -> {
-            if (session.isFinished()) {
-                stopTimer(session.getSessionId());
-                return;
-            }
+            if (session.isFinished()) { stopTimer(session.getSessionId()); return; }
             boolean timeout = session.tickTimer();
             if (timeout) {
                 session.fail();
-                broadcastToSession(session, "§c§l時間切れ！ ダンジョン失敗…");
-                // 参加者を全員退出
+                session.broadcastToParticipants("§c§l時間切れ！ ダンジョン失敗…");
                 new ArrayList<>(session.getParticipants()).forEach(uuid -> {
                     Player p = Bukkit.getPlayer(uuid);
                     if (p != null) leave(p);
@@ -194,7 +186,7 @@ public class DungeonManager {
                 stopTimer(session.getSessionId());
                 sessions.remove(session.getSessionId());
             } else if (session.getRemainingSeconds() % 60 == 0 || session.getRemainingSeconds() <= 30) {
-                broadcastToSession(session, "§e残り時間: " + session.getRemainingTimeDisplay());
+                session.broadcastToParticipants("§e残り時間: " + session.getRemainingTimeDisplay());
             }
         }, 20L, 20L);
         timers.put(session.getSessionId(), task);
@@ -205,11 +197,14 @@ public class DungeonManager {
         if (task != null) task.cancel();
     }
 
-    // ─── ユーティリティ ──────────────────────────
-
+    // ─── ユーティリティ ───────────────────────────────────
     public static DungeonSession getSession(Player player) {
         String sid = playerSessionMap.get(player.getUniqueId());
         return sid != null ? sessions.get(sid) : null;
+    }
+
+    public static DungeonSession getSessionById(String sessionId) {
+        return sessions.get(sessionId);
     }
 
     public static boolean isInDungeon(Player player) {
@@ -218,12 +213,5 @@ public class DungeonManager {
 
     public static Collection<DungeonDefinition> getAllDefinitions() {
         return definitions.values();
-    }
-
-    private static void broadcastToSession(DungeonSession session, String msg) {
-        for (UUID uuid : session.getParticipants()) {
-            Player p = Bukkit.getPlayer(uuid);
-            if (p != null) MythicRPG.playerPrefixMsg(p, msg);
-        }
     }
 }

@@ -213,35 +213,47 @@ public class MrpgCommand implements CommandExecutor, TabCompleter {
 
         MythicRPG.playerPrefixMsg(player, "§6§l━━━ MythicRPG コマンド ━━━");
 
+        // =========================
+        // 基本
+        // =========================
         MythicRPG.playerPrefixMsg(player, "§e▶ 基本");
         MythicRPG.playerPrefixMsg(player, " §7/mrpg skill <id> §8- スキル使用");
         MythicRPG.playerPrefixMsg(player, " §7/mrpg skills §8- スキル一覧GUI");
         MythicRPG.playerPrefixMsg(player, " §7/mrpg job §8- ジョブ選択");
         MythicRPG.playerPrefixMsg(player, " §7/mrpg stats [gui] §8- ステータス表示");
+        MythicRPG.playerPrefixMsg(player, " §7/mrpg statdetail §8- 詳細ステータス");
 
+        // =========================
+        // システム
+        // =========================
         MythicRPG.playerPrefixMsg(player, "§e▶ システム");
+        MythicRPG.playerPrefixMsg(player, " §7/mrpg buff §8- バフ確認");
         MythicRPG.playerPrefixMsg(player, " §7/mrpg title §8- 称号設定");
         MythicRPG.playerPrefixMsg(player, " §7/mrpg titlebook §8- 称号図鑑");
         MythicRPG.playerPrefixMsg(player, " §7/mrpg combo §8- コンボ情報");
         MythicRPG.playerPrefixMsg(player, " §7/mrpg profile §8- プロフィール");
         MythicRPG.playerPrefixMsg(player, " §7/mrpg element §8- 属性耐性");
 
+        // =========================
+        // コンテンツ
+        // =========================
         MythicRPG.playerPrefixMsg(player, "§e▶ コンテンツ");
         MythicRPG.playerPrefixMsg(player, " §7/mrpg dungeon [leave] §8- ダンジョン");
         MythicRPG.playerPrefixMsg(player, " §7/mrpg party ... §8- パーティ");
-        MythicRPG.playerPrefixMsg(player, " §7/mrpg pet ... §8- ペット");
-        MythicRPG.playerPrefixMsg(player, " §7/mrpg artifact ... §8- アーティファクト");
+        MythicRPG.playerPrefixMsg(player, " §7/mrpg pet [summon/dismiss/info] §8- ペット");
+        MythicRPG.playerPrefixMsg(player, " §7/mrpg artifact §8- アーティファクト");
         MythicRPG.playerPrefixMsg(player, " §7/mrpg pvp §8- PvPランキング");
 
+        // =========================
+        // 管理者
+        // =========================
         if (player.hasPermission("mythicrpg.admin")) {
             MythicRPG.playerPrefixMsg(player, "§c▶ 管理者");
             MythicRPG.playerPrefixMsg(player, " §7/mrpg reload §8- 設定リロード");
-            MythicRPG.playerPrefixMsg(player, " §7/mrpg pvpzone create <id> <range>");
+            MythicRPG.playerPrefixMsg(player, " §7/mrpg toggle <system> §8- システム切替");
+            MythicRPG.playerPrefixMsg(player, " §7/mrpg pvpzone create <id> <range> §8- PvPゾーン作成");
         }
-
-        MythicRPG.playerPrefixMsg(player, "§6§l━━━━━━━━━━━━━━━━━━━━━━");
     }
-
 
     private void sendPetHelp(Player player) {
         MythicRPG.playerPrefixMsg(player, "§7/mrpg pet summon <id> / dismiss / info");
