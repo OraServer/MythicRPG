@@ -74,8 +74,10 @@ public class MrpgCommand implements CommandExecutor, TabCompleter {
             }
             case "buff" -> {
                 if (!(sender instanceof Player player)) return true;
-                buffCmd.execute(player, args);
+                String[] subArgs = java.util.Arrays.copyOfRange(args, 1, args.length);
+                BuffCommand.execute(player, subArgs);
             }
+
             case "title" -> {
                 if (!(sender instanceof Player player)) return true;
                 TitleManager.checkUnlock(player);
