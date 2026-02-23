@@ -6,6 +6,9 @@ import net.kyori.adventure.text.Component;
 import org.bukkit.Bukkit;
 import org.bukkit.Material;
 import org.bukkit.entity.Player;
+import org.bukkit.event.EventHandler;
+import org.bukkit.event.Listener;
+import org.bukkit.event.inventory.InventoryClickEvent;
 import org.bukkit.inventory.Inventory;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.meta.ItemMeta;
@@ -19,7 +22,7 @@ import java.util.*;
  *  0-8  行:  セット一覧 (最大9セット、現在10種)
  *  各スロット: セット名・説明・装備数・発動状況を表示
  */
-public class ArtifactGUI {
+public class ArtifactGUI implements Listener {
 
     private static final String TITLE = "§5§lアーティファクトセット";
 
@@ -156,5 +159,26 @@ public class ArtifactGUI {
         meta.displayName(Component.text(" "));
         item.setItemMeta(meta);
         return item;
+    }
+
+    @EventHandler
+    public void onClick(InventoryClickEvent e) {
+
+        if (!(e.getWhoClicked() instanceof Player)) return;
+
+        // タイトル一致確認（Adventure対応）
+        if (!e.getView().title().equals(Component.text(TITLE))) return;
+
+        if (e.getClickedInventory() == null) return;
+
+        // 上部GUIは完全キャンセル
+        if (e.getClickedInventory().equals(e.getView().getTopInventory())) {
+            e.setCancelled(true);
+        }
+
+        // Shiftクリック対策（GUIへ流入防止）
+        if (e.isShiftClick()) {
+            e.setCancelled(true);
+        }
     }
 }

@@ -2,17 +2,21 @@ package com.woxloi.mythicrpg.artifact;
 
 import com.woxloi.mythicrpg.MythicRPG;
 import com.woxloi.mythicrpg.core.PluginToggleManager;
+import org.bukkit.Bukkit;
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.EventPriority;
 import org.bukkit.event.Listener;
-import org.bukkit.event.entity.EntityDeathEvent;
-import org.bukkit.event.entity.PlayerDeathEvent;
+import org.bukkit.event.entity.EntityDamageEvent;
 import org.bukkit.event.inventory.InventoryClickEvent;
 import org.bukkit.event.inventory.InventoryType;
 import org.bukkit.event.player.PlayerItemHeldEvent;
 import org.bukkit.event.player.PlayerJoinEvent;
 import org.bukkit.event.player.PlayerSwapHandItemsEvent;
+
+import java.util.HashSet;
+import java.util.Set;
+import java.util.UUID;
 
 /**
  * 装備変更を検知してアーティファクトセットボーナスを再計算するリスナー。
@@ -26,32 +30,38 @@ import org.bukkit.event.player.PlayerSwapHandItemsEvent;
  */
 public class ArtifactListener implements Listener {
 
+    // 復活直後の連続発動防止用
+    private final Set<UUID> reviveCooldown = new HashSet<>();
+
     /**
      * ログイン時に全セットボーナスを初期計算。
      */
     @EventHandler
     public void onJoin(PlayerJoinEvent e) {
         if (!PluginToggleManager.isEnabled("artifact")) return;
-        // 1tick後に実行（インベントリ読み込み完了を待つ）
-        MythicRPG.getInstance().getServer().getScheduler()
-                .runTaskLater(MythicRPG.getInstance(),
-                        () -> ArtifactManager.recalculate(e.getPlayer()),
-                        2L);
+
+        Bukkit.getScheduler().runTaskLater(
+                MythicRPG.getInstance(),
+                () -> ArtifactManager.recalculate(e.getPlayer()),
+                2L
+        );
     }
 
     /**
      * インベントリクリック時 - アーマースロット変更を検知。
      */
-    @EventHandler(priority = EventPriority.MONITOR, ignoreCancelled = true)
+    @EventHandler(priority = EventPriority.HIGH)
     public void onInventoryClick(InventoryClickEvent e) {
+        if (!PluginToggleManager.isEnabled("artifact")) return;
         if (!(e.getWhoClicked() instanceof Player player)) return;
 
-        boolean isArmorSlot = e.getSlotType() == InventoryType.SlotType.ARMOR
-                || (e.getInventory().getType() == InventoryType.PLAYER
-                && isArmorSlotIndex(e.getRawSlot()));
-        if (!isArmorSlot) return;
+        if (e.getClickedInventory() == null) return;
 
-        // 1tick後にボーナス再計算（インベントリ操作完了後）
+        // 「下側のインベントリ（プレイヤー）」のみ対象にする
+        if (!e.getClickedInventory().equals(e.getView().getBottomInventory())) return;
+
+        if (e.getSlotType() != InventoryType.SlotType.ARMOR) return;
+
         MythicRPG.getInstance().getServer().getScheduler()
                 .runTaskLater(MythicRPG.getInstance(),
                         () -> ArtifactManager.recalculate(player),
@@ -67,10 +77,13 @@ public class ArtifactListener implements Listener {
      */
     @EventHandler
     public void onHeldChange(PlayerItemHeldEvent e) {
-        MythicRPG.getInstance().getServer().getScheduler()
-                .runTaskLater(MythicRPG.getInstance(),
-                        () -> ArtifactManager.recalculate(e.getPlayer()),
-                        1L);
+        if (!PluginToggleManager.isEnabled("artifact")) return;
+
+        Bukkit.getScheduler().runTaskLater(
+                MythicRPG.getInstance(),
+                () -> ArtifactManager.recalculate(e.getPlayer()),
+                1L
+        );
     }
 
     /**
@@ -78,30 +91,45 @@ public class ArtifactListener implements Listener {
      */
     @EventHandler
     public void onSwapHand(PlayerSwapHandItemsEvent e) {
-        MythicRPG.getInstance().getServer().getScheduler()
-                .runTaskLater(MythicRPG.getInstance(),
-                        () -> ArtifactManager.recalculate(e.getPlayer()),
-                        1L);
+        if (!PluginToggleManager.isEnabled("artifact")) return;
+
+        Bukkit.getScheduler().runTaskLater(
+                MythicRPG.getInstance(),
+                () -> ArtifactManager.recalculate(e.getPlayer()),
+                1L
+        );
     }
 
     /**
      * 死亡時: ANCIENT_KING セット2段階以上で20%の確率で復活。
      */
     @EventHandler(priority = EventPriority.HIGH)
-    public void onPlayerDeath(PlayerDeathEvent e) {
-        Player player = e.getEntity();
+    public void onDamage(EntityDamageEvent e) {
+        if (!PluginToggleManager.isEnabled("artifact")) return;
+        if (!(e.getEntity() instanceof Player player)) return;
         if (!ArtifactManager.shouldRevive(player)) return;
+        if (reviveCooldown.contains(player.getUniqueId())) return;
 
-        // キャンセルして復活処理
-        e.setCancelled(false); // 死亡自体は発生させ、リスポーン後にHP回復
-        MythicRPG.getInstance().getServer().getScheduler()
-                .runTaskLater(MythicRPG.getInstance(), () -> {
-                    if (player.isOnline()) {
-                        player.setHealth(player.getMaxHealth() * 0.5);
-                        player.sendMessage(MythicRPG.PREFIX
-                                + "§5§l【古代王の奇跡】§f 死亡を免れた！(残HP 50%)");
-                        ArtifactManager.recalculate(player);
-                    }
-                }, 1L);
+        if (player.getHealth() - e.getFinalDamage() <= 0) {
+
+            e.setCancelled(true);
+
+            reviveCooldown.add(player.getUniqueId());
+
+            player.setHealth(player.getMaxHealth() * 0.5);
+            player.setNoDamageTicks(40); // 2秒無敵
+
+            player.sendMessage(MythicRPG.PREFIX
+                    + "§5§l【古代王の奇跡】§f 死亡を免れた！(残HP 50%)");
+
+            ArtifactManager.recalculate(player);
+
+            // 3秒後にクールダウン解除
+            Bukkit.getScheduler().runTaskLater(
+                    MythicRPG.getInstance(),
+                    () -> reviveCooldown.remove(player.getUniqueId()),
+                    60L
+            );
+        }
     }
 }

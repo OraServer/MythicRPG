@@ -1,10 +1,7 @@
 package com.woxloi.mythicrpg.core;
 
 import com.woxloi.mythicrpg.MythicRPG;
-import com.woxloi.mythicrpg.artifact.ArtifactListener;
-import com.woxloi.mythicrpg.artifact.ArtifactManager;
-import com.woxloi.mythicrpg.artifact.ArtifactRegistry;
-import com.woxloi.mythicrpg.artifact.ArtifactRepository;
+import com.woxloi.mythicrpg.artifact.*;
 import com.woxloi.mythicrpg.buff.BuffListener;
 import com.woxloi.mythicrpg.buff.BuffPotionListener;
 import com.woxloi.mythicrpg.buff.BuffTickTask;
@@ -167,6 +164,7 @@ public class PluginBootstrap {
 
         // アーティファクト
         Bukkit.getPluginManager().registerEvents(new ArtifactListener(), plugin);
+        Bukkit.getPluginManager().registerEvents(new ArtifactGUI(), plugin);
 
         // バフ/デバフ
         Bukkit.getPluginManager().registerEvents(new BuffListener(), plugin);
